@@ -48,7 +48,34 @@ func (c CmdRm) Run(args []string) error {
 		return fmt.Errorf("invalid app name passed.")
 	}
 
-	fmt.Printf("Remove app '%s' with all data?\n", appName)
+	// Check whenever to remove all backups also.
+	var removeBackups bool
+	for {
+		fmt.Print("Remove all backups also? (y/N) ")
+		input, err := readline("n")
+		if err != nil {
+			return err
+		}
+		input = strings.ToLower(input)
+
+		if input == "y" {
+			removeBackups = true
+			break
+		} else if input == "n" {
+			removeBackups = false
+			break
+		}
+
+		continue
+	}
+
+	if removeBackups {
+		fmt.Println("All backups will be deleted!")
+	} else {
+		fmt.Println("A new backup will be created before deletion.")
+	}
+
+	fmt.Printf("Remove app '%s'?\n", appName)
 
 	// Confirm the request.
 	if !confirmCommit() {
@@ -57,7 +84,8 @@ func (c CmdRm) Run(args []string) error {
 
 	// Create a new remove request.
 	request := api.RequestRemove{
-		Name: appName,
+		Name:          appName,
+		RemoveBackups: removeBackups,
 	}
 
 	// Send the remove request to the daemon.

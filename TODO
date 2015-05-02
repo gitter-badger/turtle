@@ -8,8 +8,6 @@
 
 * Implement logging features.
 * Create a temporary testing clone of an app during an update.
-* Create a backup on each app startup and app remove.
-* On exit: save state of all running apps and start them during the next startup.
 * Implement access groups
 
 

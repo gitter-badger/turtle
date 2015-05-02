@@ -52,7 +52,8 @@ type RequestAdd struct {
 }
 
 type RequestRemove struct {
-	Name string // App name
+	Name          string // App name
+	RemoveBackups bool   // Whenever all backups should be removed also.
 }
 
 type RequestStart struct {

@@ -243,7 +243,7 @@ func handleRemove(request *api.Request) (interface{}, error) {
 	}
 
 	// Remove the app.
-	err = a.Remove()
+	err = a.Remove(data.RemoveBackups)
 	if err != nil {
 		return nil, fmt.Errorf("failed to remove app: %v", err)
 	}

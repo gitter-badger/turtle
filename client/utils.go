@@ -91,7 +91,7 @@ func readline(defaultValue ...string) (string, error) {
 func confirmCommit() bool {
 	for {
 		// Get the app name.
-		fmt.Print("Continue and commit the request? (y or n): ")
+		fmt.Print("Continue and commit the request? (y/n): ")
 		q, err := readline()
 		if err != nil {
 			fmt.Printf("error: %v", err)

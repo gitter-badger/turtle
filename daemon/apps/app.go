@@ -198,7 +198,7 @@ func (a *App) Turtlefile() (*turtlefile.Turtlefile, error) {
 }
 
 // Remove the app.
-func (a *App) Remove() error {
+func (a *App) Remove(removeBackups bool) error {
 	// Lock the task mutex.
 	// The app should not be started during a remove process.
 	a.taskMutex.Lock()
@@ -207,6 +207,15 @@ func (a *App) Remove() error {
 	// Abort if the app is running.
 	if a.IsRunning() {
 		return fmt.Errorf("the app is running!")
+	}
+
+	if !removeBackups {
+		// Create a backup first.
+		// Call the private method, because we locked the taskMutex already.
+		err := a.backup()
+		if err != nil {
+			return err
+		}
 	}
 
 	// Remove the app subvolume if it exists.
@@ -219,12 +228,21 @@ func (a *App) Remove() error {
 		}
 	}
 
-	// Lock the apps mutex.
-	appsMutex.Lock()
-	defer appsMutex.Unlock()
+	func() {
+		// Lock the apps mutex.
+		appsMutex.Lock()
+		defer appsMutex.Unlock()
 
-	// Remove the app from the apps map.
-	delete(apps, a.name)
+		// Remove the app from the apps map.
+		delete(apps, a.name)
+	}()
+
+	// Remove all backups if requested.
+	if removeBackups {
+		if err = a.RemoveAllBackups(); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

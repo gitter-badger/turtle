@@ -42,6 +42,13 @@ func (a *App) Backup() error {
 	a.taskMutex.Lock()
 	defer a.taskMutex.Unlock()
 
+	// Perform the actual backup.
+	return a.backup()
+}
+
+// backup the app data.
+// This method won't lock the taskMutex. You have to handle it!
+func (a *App) backup() error {
 	// Don't backup during some special app tasks.
 	if a.task == taskCloneSource ||
 		a.task == taskUpdate {
@@ -121,6 +128,31 @@ func (a *App) RemoveBackup(timestamp string) error {
 	err := btrfs.DeleteSubvolume(path)
 	if err != nil {
 		return fmt.Errorf("failed to delete backup subvolume '%s': %v", timestamp, err)
+	}
+
+	return nil
+}
+
+// RemoveAllBackups removes all backups of the app.
+// Don't call this during any other backup method call.
+func (a *App) RemoveAllBackups() error {
+	// First get all backups.
+	backups, err := a.Backups()
+	if err != nil {
+		return err
+	}
+
+	// Remove all backups.
+	for _, b := range backups {
+		if err = a.RemoveBackup(b); err != nil {
+			return err
+		}
+	}
+
+	// Delete the base backup directory.
+	err = os.RemoveAll(a.BackupDirectoryPath())
+	if err != nil {
+		return fmt.Errorf("failed to remove app base backup directory: %v", err)
 	}
 
 	return nil
