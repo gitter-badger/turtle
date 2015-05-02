@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/desertbit/turtle/daemon/config"
 	"github.com/desertbit/turtle/daemon/docker"
 	"github.com/desertbit/turtle/utils"
 
@@ -107,6 +108,37 @@ func (a *App) createStopChannel() {
 }
 
 func taskFuncRun(app *App) (err error) {
+	// Create a new  backup ticker
+	ticker := time.NewTicker(config.Config.BackupInterval)
+	stopBackupLoop := make(chan struct{})
+
+	defer func() {
+		// Stop the ticker
+		ticker.Stop()
+
+		// Stop the loop by triggering the quit trigger.
+		close(stopBackupLoop)
+	}()
+
+	// Start a backup job in a new goroutine.
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				log.Infof("creating automatic backup of app '%s'.", app.name)
+
+				// Create a backup.
+				err := app.Backup()
+				if err != nil {
+					log.Errorf("failed to create automatic backup of app '%s': %v", app.name, err)
+				}
+			case <-stopBackupLoop:
+				// Just exit the loop
+				return
+			}
+		}
+	}()
+
 	for {
 		// Reset the restart flag.
 		app.restartApp = false

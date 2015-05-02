@@ -3,8 +3,8 @@
 ###
 
 
-* backup in timeintervals
-* Implement automatic backups with encrypted compressed export.
+* Implement automatic backup with encrypted compressed export.
+* Automatically remove old backups.
 
 * Implement logging features.
 * Create a temporary testing clone of an app during an update.
