@@ -65,20 +65,29 @@ func release() {
 	// Don't handle any further requests,
 	requestRWLock.Lock()
 
+	// Save the current state of all running apps...
+	err := saveCurrentState()
+	if err != nil {
+		log.Errorf("failed to save current turtle state: %v", err)
+	}
+
 	// Release the app package.
 	apps.Release()
 }
 
 // prepareEnv prepares the turtle environment.
 func prepareEnv() (err error) {
-	// Create the app directory if it does not exists.
-	if err = utils.MkDirIfNotExists(config.Config.AppPath); err != nil {
-		return err
+	// Create the directories if they don't exists.
+	createDirs := []string{
+		config.Config.AppPath,
+		config.Config.BackupPath,
+		config.Config.TurtlePath,
 	}
 
-	// Create the backup directory if it does not exists.
-	if err = utils.MkDirIfNotExists(config.Config.BackupPath); err != nil {
-		return err
+	for _, dir := range createDirs {
+		if err = utils.MkDirIfNotExists(dir); err != nil {
+			return err
+		}
 	}
 
 	// Initialize and load the apps.
@@ -132,6 +141,14 @@ func main() {
 	// Start the btrfs balance job.
 	go btrfsBalanceJob()
 
+	// Restore the previous state.
+	// Start all apps which where running during the last daemon shutdown...
+	err = restoreState()
+	if err != nil {
+		log.Warningf("failed to restore previous turtle state: %v", err)
+	}
+
+	// Log
 	log.Infof("Turtle server listening on '%s'", config.Config.ListenAddress)
 
 	// Start the http server.

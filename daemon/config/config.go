@@ -26,6 +26,8 @@ const (
 	TurtleRoot = "/turtle"
 )
 
+// TODO: Load the config from the turtle directory.
+
 var (
 	Config = config{
 		ListenAddress:  ":28239",
@@ -33,6 +35,7 @@ var (
 
 		AppPath:    TurtleRoot + "/apps",
 		BackupPath: TurtleRoot + "/backups",
+		TurtlePath: TurtleRoot + "/turtle",
 
 		BtrfsBalanceInterval: 3 * time.Hour,
 		BtrfsBalanceDusage:   20,
@@ -45,9 +48,13 @@ type config struct {
 
 	AppPath    string
 	BackupPath string
+	TurtlePath string
 
 	BtrfsBalanceInterval time.Duration
 	BtrfsBalanceDusage   int // In percent
 }
 
-// TODO: Add support to load custom config settings from a file.
+// StateFilePath returns the turtle state file path.
+func (c *config) StateFilePath() string {
+	return c.TurtlePath + "/state"
+}
