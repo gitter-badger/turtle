@@ -148,6 +148,9 @@ func main() {
 		log.Warningf("failed to restore previous turtle state: %v", err)
 	}
 
+	// Start the loop to remove old backups.
+	go autoRemoveOldBackupsLoop()
+
 	// Log
 	log.Infof("Turtle server listening on '%s'", config.Config.ListenAddress)
 

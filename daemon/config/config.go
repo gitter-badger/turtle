@@ -40,7 +40,8 @@ var (
 		BtrfsBalanceInterval: 3 * time.Hour,
 		BtrfsBalanceDusage:   20,
 
-		BackupInterval: 4 * time.Hour,
+		BackupInterval:      4 * time.Hour,
+		KeepBackupsDuration: 60 * 60 * 24 * 10, // 10 days
 	}
 )
 
@@ -55,7 +56,8 @@ type config struct {
 	BtrfsBalanceInterval time.Duration
 	BtrfsBalanceDusage   int // In percent
 
-	BackupInterval time.Duration // Create backups of running apps in this interval.
+	BackupInterval      time.Duration // Create backups of running apps in this interval.
+	KeepBackupsDuration int64         // Keep backups only for x seconds.
 }
 
 // StateFilePath returns the turtle state file path.
