@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/desertbit/turtle/daemon/apps"
@@ -32,6 +33,10 @@ import (
 
 const (
 	removeBackupInterval = 5 * time.Hour
+)
+
+var (
+	removeOldBackupsMutex sync.Mutex
 )
 
 func autoRemoveOldBackupsLoop() {
@@ -51,6 +56,10 @@ func autoRemoveOldBackupsLoop() {
 }
 
 func removeOldBackups() error {
+	// Lock the mutex.
+	removeOldBackupsMutex.Lock()
+	defer removeOldBackupsMutex.Unlock()
+
 	var allErr string
 
 	addErr := func(err error) {

@@ -4,7 +4,6 @@
 
 
 * Implement automatic backup with encrypted compressed export.
-* Block loops of goroutines during shutdown.
 
 * Implement logging features.
 * Create a temporary testing clone of an app during an update.

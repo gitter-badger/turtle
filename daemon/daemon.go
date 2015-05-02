@@ -65,6 +65,9 @@ func release() {
 	// Don't handle any further requests,
 	requestRWLock.Lock()
 
+	// Block the remove old backups job.
+	removeOldBackupsMutex.Lock()
+
 	// Save the current state of all running apps...
 	err := saveCurrentState()
 	if err != nil {
