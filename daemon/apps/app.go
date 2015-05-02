@@ -261,3 +261,14 @@ func (a *App) loadSettings() error {
 
 	return nil
 }
+
+// reload the app settings and turtlefile.
+func (a *App) reload() error {
+	a.turtlefile = nil
+	_, err := a.Turtlefile()
+	if err != nil {
+		return err
+	}
+
+	return a.loadSettings()
+}

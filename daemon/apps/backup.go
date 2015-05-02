@@ -154,13 +154,7 @@ func (a *App) RestoreBackup(timestamp string) (err error) {
 
 	// Reload the turtlefile and settings on defer.
 	defer func() {
-		a.turtlefile = nil
-		_, err = a.Turtlefile()
-		if err != nil {
-			return
-		}
-
-		err = a.loadSettings()
+		err = a.reload()
 	}()
 
 	// Move the current subvolume to the backup location with the current timestamp.
