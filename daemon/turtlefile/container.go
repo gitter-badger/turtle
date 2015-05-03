@@ -26,7 +26,7 @@ import (
 const (
 	DefaultImageTag = "latest"
 
-	maxContainerWaitAfterStartup = 20 // seconds
+	maxContainerWaitAfterStartup = 20000 // seconds
 )
 
 //#######################//
