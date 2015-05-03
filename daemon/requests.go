@@ -123,6 +123,8 @@ func handleRequest(rw http.ResponseWriter, req *http.Request) {
 		data, err = handleAdd(request)
 	case api.TypeRemove:
 		data, err = handleRemove(request)
+	case api.TypeInfo:
+		data, err = handleInfo(request)
 	case api.TypeList:
 		data, err = handleList(request)
 	case api.TypeStart:
@@ -199,6 +201,54 @@ func handleAdd(request *api.Request) (interface{}, error) {
 	return nil, nil
 }
 
+// handleInfo returns information about an app.
+func handleInfo(request *api.Request) (interface{}, error) {
+	// Map the data to the custom type.
+	var data api.RequestInfo
+	err := request.MapTo(&data)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate.
+	if len(data.Name) == 0 {
+		return nil, fmt.Errorf("missing or invalid data: %+v", data)
+	}
+
+	// Obtain the app with the given name.
+	a, err := apps.Get(data.Name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get information of app: %v", err)
+	}
+
+	// Get the setup data from the app.
+	setup, err := a.GetSetup()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get information of app: %v", err)
+	}
+
+	// Get the turtlefile.
+	// Continue also on error.
+	t, err := a.Turtlefile()
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the response value.
+	res := api.ResponseInfo{
+		Name:       a.Name(),
+		Maintainer: t.Maintainer,
+		Turtlefile: t.Name,
+		State:      a.State(),
+		SourceURL:  a.SourceURL(),
+		Branch:     a.Branch(),
+
+		Setup: setup,
+	}
+
+	return res, nil
+}
+
 // handleList sends a list of all Apps.
 func handleList(request *api.Request) (interface{}, error) {
 	// Get all apps.
@@ -211,11 +261,20 @@ func handleList(request *api.Request) (interface{}, error) {
 
 	// Add all the apps to the response value.
 	for i, app := range curApps {
+		// Get the turtlefile.
+		// Continue also on error.
+		var turtlefileName string
+		t, err := app.Turtlefile()
+		if err != nil {
+			turtlefileName = "ERROR In FILE"
+		} else {
+			turtlefileName = t.Name
+		}
+
 		res.Apps[i] = api.ResponseListApp{
-			Name:      app.Name(),
-			SourceURL: app.SourceURL(),
-			Branch:    app.Branch(),
-			State:     app.State(),
+			Name:       app.Name(),
+			Turtlefile: turtlefileName,
+			State:      app.State(),
 		}
 	}
 

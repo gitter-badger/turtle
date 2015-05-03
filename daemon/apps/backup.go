@@ -165,8 +165,8 @@ func (a *App) RestoreBackup(timestamp string) (err error) {
 	a.taskMutex.Lock()
 	defer a.taskMutex.Unlock()
 
-	// Abort if the app is running.
-	if a.IsRunning() {
+	// Abort if any app ask is running.
+	if a.IsTaskRunning() {
 		return fmt.Errorf("the app is running!")
 	}
 

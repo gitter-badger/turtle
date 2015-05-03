@@ -24,6 +24,8 @@ import (
 )
 
 const (
+	DefaultImageTag = "latest"
+
 	maxContainerWaitAfterStartup = 20 // seconds
 )
 
@@ -50,6 +52,17 @@ func (cc Containers) IsValid() error {
 			} else if strings.Contains(v, "..") {
 				return fmt.Errorf("Container '%s': volume '%s' contains invalid character '..'!", c.Name, v)
 			}
+		}
+	}
+
+	return nil
+}
+
+func (cc Containers) Prepare() error {
+	for _, c := range cc {
+		// Set the default image tag if not set.
+		if len(c.Tag) == 0 {
+			c.Tag = DefaultImageTag
 		}
 	}
 
@@ -122,9 +135,12 @@ type Container struct {
 	Image string // Docker image name.
 
 	// Optional
+	Tag              string   // The image tag.
 	WaitAfterStartup int      // Wait x milliseconds after the container started. This delays the next container startup.
 	Links            []string // List of linked container names.
 	Volumes          []string // List of volume mount points.
+	StaticVolumes    []string // List of static predefined volume mount points.
+	Env              []string // A list of static predefined environment variables in the form of VAR=value.
 }
 
 //###############//

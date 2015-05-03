@@ -98,6 +98,7 @@ func (a *App) GetSetup() (*api.Setup, error) {
 		// Create a new port value.
 		p := &api.Port{
 			Port:        port.Port,
+			Container:   port.Container,
 			Protocol:    port.Protocol,
 			Description: port.Description,
 		}
@@ -138,6 +139,7 @@ func (a *App) Setup(setup *api.Setup) error {
 	// Set the port values to the settings.
 	for i, p := range setup.Ports {
 		a.settings.Ports[i] = &appSettingsPort{
+			ContainerName: p.Container,
 			ContainerPort: p.Port,
 			HostPort:      p.HostPort,
 			Protocol:      p.Protocol,

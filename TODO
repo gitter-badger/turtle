@@ -2,9 +2,10 @@
 ### Daemon
 ###
 
-
+* add ssh host key 
 * Implement automatic backup with encrypted compressed export.
 
+* Sort the backup list before sending it to the client.
 * Implement logging features.
 * Create a temporary testing clone of an app during an update.
 * Implement access groups
@@ -16,3 +17,4 @@
 ###
 
 * Implement awesome terminal info screen (https://github.com/gizak/termui)
+  Currently commented in cmd_watch.go

@@ -39,6 +39,7 @@ func newSettings() *appSettings {
 type appSettingsPorts []*appSettingsPort
 
 type appSettingsPort struct {
+	ContainerName string
 	ContainerPort int
 	HostPort      int // 0 if disabled.
 	Protocol      string

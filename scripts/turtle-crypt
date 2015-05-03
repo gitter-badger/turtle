@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+
+printUsage() {
+	echo "Usage:"
+	echo "  turtle-crypt enc <password> <input> <output>"
+	echo "  turtle-crypt dec <password> <input> <output to dir>"
+}
+
+if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
+	echo "invalid arguments!"
+	printUsage
+	exit 1
+fi
+
+if [ "$1" == "enc" ]; then
+	shift
+	tar --create --file - --posix --gzip -- "$2" | openssl enc -salt -e -aes256 -out "$3" -pass pass:$1
+elif [ "$1" == "dec" ]; then
+	shift
+	openssl enc -d -aes256 -in "$2" -pass pass:$1 | tar --extract --file - --gzip -C "$3"
+else
+	echo "invalid arguments!"
+	printUsage
+	exit 1
+fi

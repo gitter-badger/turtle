@@ -42,9 +42,14 @@ const (
 //### Public App methods ###//
 //##########################//
 
+// IsRunning returns a boolean whenever the app is running.
+func (a *App) IsRunning() bool {
+	return a.task == taskRun
+}
+
 // Start the app.
 func (a *App) Start() error {
-	if a.task == taskRun {
+	if a.IsTaskRunning() {
 		return fmt.Errorf("app is already running!")
 	} else if !a.IsSetup() {
 		return fmt.Errorf("you have to setup the app first!")
@@ -62,7 +67,7 @@ func (a *App) Start() error {
 
 // Stop the app.
 func (a *App) Stop() error {
-	if a.task != taskRun {
+	if !a.IsRunning() {
 		return fmt.Errorf("app is not running!")
 	}
 
@@ -210,7 +215,7 @@ func setupRunEnvironment(app *App) error {
 		path = volumesPath + "/" + c.Name
 
 		for _, v := range c.Volumes {
-			err = utils.MkDirIfNotExists(filepath.Clean(path + "/" + v))
+			err = utils.MkDirIfNotExists(filepath.Clean(path+"/"+v), 0750)
 			if err != nil {
 				return err
 			}
@@ -268,11 +273,14 @@ func startContainers(app *App) (err error) {
 		return err
 	}
 
+	// Create the container name prefix.
+	cNamePrefix := docker.TurtlePrefix + app.Name() + "."
+
 	// Start each app container.
 	// Hint: the containers are already sorted by the turtlefile Load method.
 	for _, container := range turtlefile.Containers {
 		// Create the docker container name.
-		containerName := docker.TurtlePrefix + app.Name() + "." + container.Name
+		containerName := cNamePrefix + container.Name
 
 		// Check if a container with the same name is present.
 		c, err := docker.GetContainerByName(containerName)
@@ -287,18 +295,24 @@ func startContainers(app *App) (err error) {
 		}
 
 		// Create the bind volumes slice.
-		binds := make([]string, len(container.Volumes))
+		binds := make([]string, len(container.Volumes)+len(container.StaticVolumes))
 		i := 0
 		for _, v := range container.Volumes {
 			binds[i] = filepath.Clean(volumesPath+"/"+container.Name+"/"+v) + ":" + v
 			i++
 		}
 
+		// Add the static volume mount.
+		for _, v := range container.StaticVolumes {
+			binds[i] = v
+			i++
+		}
+
 		// Create the port bindings.
 		portBindings := make(map[d.Port][]d.PortBinding)
 		for _, p := range app.settings.Ports {
-			// Skip if disabled.
-			if p.HostPort <= 0 {
+			// Skip if this is not for this container or if disabled.
+			if p.ContainerName != container.Name || p.HostPort <= 0 {
 				continue
 			}
 
@@ -311,10 +325,16 @@ func startContainers(app *App) (err error) {
 			}
 		}
 
+		// Create the links.
+		links := make([]string, len(container.Links))
+		for i, l := range container.Links {
+			links[i] = cNamePrefix + l + ":" + l
+		}
+
 		// Create the host config.
 		hostConfig := &d.HostConfig{
 			RestartPolicy:   d.NeverRestart(), // the docker daemon will not restart the container automatically.
-			Links:           container.Links,
+			Links:           links,
 			Privileged:      false,
 			PublishAllPorts: false,
 			PortBindings:    portBindings,
@@ -326,6 +346,7 @@ func startContainers(app *App) (err error) {
 			Name: containerName,
 			Config: &d.Config{
 				Image: container.Image,
+				Env:   container.Env,
 			},
 			HostConfig: hostConfig,
 		}
@@ -338,6 +359,7 @@ func startContainers(app *App) (err error) {
 			// Pull the image.
 			err = docker.Client.PullImage(d.PullImageOptions{
 				Repository: container.Image,
+				Tag:        container.Tag,
 			}, d.AuthConfiguration{})
 
 			if err != nil {

@@ -22,15 +22,25 @@ package api
 //### Public Types ###//
 //####################//
 
+type ResponseInfo struct {
+	Name       string
+	Turtlefile string
+	Maintainer string
+	State      string
+	SourceURL  string
+	Branch     string
+
+	Setup *Setup
+}
+
 type ResponseList struct {
 	Apps []ResponseListApp
 }
 
 type ResponseListApp struct {
-	Name      string
-	SourceURL string
-	Branch    string
-	State     string
+	Name       string
+	Turtlefile string
+	State      string
 }
 
 type ResponseListBackups struct {

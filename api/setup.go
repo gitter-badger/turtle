@@ -42,8 +42,9 @@ type EnvValue struct {
 type Ports []*Port
 
 type Port struct {
-	Port     int
-	Protocol string // tcp or udp. Default is tcp.
+	Port      int
+	Container string // The container name.
+	Protocol  string // tcp or udp. Default is tcp.
 
 	// Optional
 	HostPort    int

@@ -33,6 +33,9 @@ const (
 //#######################//
 
 type Turtlefile struct {
+	Name       string
+	Maintainer string
+
 	Env        Env
 	Containers Containers `toml:"Container"`
 	Ports      Ports      `toml:"Port"`
@@ -40,6 +43,10 @@ type Turtlefile struct {
 
 // IsValid checks if required values are missing or invalid.
 func (t *Turtlefile) IsValid() error {
+	if len(t.Name) == 0 {
+		return fmt.Errorf("turtlefile name is missing!")
+	}
+
 	// Check if the environment is valid.
 	err := t.Env.IsValid()
 	if err != nil {
@@ -76,6 +83,11 @@ func Load(turtlefilePath string) (*Turtlefile, error) {
 
 	// Sort the containers by their startup level.
 	if err = t.Containers.Sort(); err != nil {
+		return nil, err
+	}
+
+	// Prepare the containers.
+	if err = t.Containers.Prepare(); err != nil {
 		return nil, err
 	}
 

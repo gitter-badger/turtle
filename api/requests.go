@@ -27,6 +27,7 @@ type Type string
 const (
 	TypeAdd           Type = "add"
 	TypeRemove        Type = "remove"
+	TypeInfo          Type = "info"
 	TypeList          Type = "list"
 	TypeListBackups   Type = "list-backups"
 	TypeStart         Type = "start"
@@ -54,6 +55,10 @@ type RequestAdd struct {
 type RequestRemove struct {
 	Name          string // App name
 	RemoveBackups bool   // Whenever all backups should be removed also.
+}
+
+type RequestInfo struct {
+	Name string // App name
 }
 
 type RequestStart struct {

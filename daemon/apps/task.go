@@ -48,8 +48,8 @@ const (
 //### App task methods ###//
 //########################//
 
-// IsRunning returns a boolean whenever a task is active and running.
-func (a *App) IsRunning() bool {
+// IsTaskRunning returns a boolean whenever a task is active and running.
+func (a *App) IsTaskRunning() bool {
 	return a.task != taskNone
 }
 

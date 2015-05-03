@@ -204,8 +204,8 @@ func (a *App) Remove(removeBackups bool) error {
 	a.taskMutex.Lock()
 	defer a.taskMutex.Unlock()
 
-	// Abort if the app is running.
-	if a.IsRunning() {
+	// Abort if any app task is running.
+	if a.IsTaskRunning() {
 		return fmt.Errorf("the app is running!")
 	}
 

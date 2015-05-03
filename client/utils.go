@@ -35,7 +35,7 @@ func init() {
 	tabWriterStdout = new(tabwriter.Writer)
 
 	// Format in tab-separated columns with a tab stop of 8.
-	tabWriterStdout.Init(os.Stdout, 0, 8, 0, '\t', 0)
+	tabWriterStdout.Init(os.Stdout, 2, 8, 2, '\t', 0)
 }
 
 func print(a ...interface{}) {

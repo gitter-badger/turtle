@@ -57,11 +57,11 @@ func (c CmdList) Run(args []string) error {
 	fmt.Println()
 
 	// Print the column header.
-	println("NAME\tSOURCE\tBRANCH\tSTATE")
+	println("NAME\tTURTLEFILE\tSTATE")
 
 	// Print all the apps.
 	for _, app := range list.Apps {
-		printc(app.Name, app.SourceURL, app.Branch, app.State)
+		printc(app.Name, app.Turtlefile, app.State)
 	}
 
 	// Flush the output.

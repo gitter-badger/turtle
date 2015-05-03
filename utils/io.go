@@ -34,15 +34,21 @@ func Exists(path string) (bool, error) {
 	return false, err
 }
 
-// MkDirIfNotExists creates a directory if it doesn't exists
-func MkDirIfNotExists(path string) error {
+// MkDirIfNotExists creates a directory if it doesn't exists.
+// Optional the permission can be passed.
+func MkDirIfNotExists(path string, perm ...os.FileMode) error {
 	e, err := Exists(path)
 	if err != nil {
 		return err
 	}
 
+	var p os.FileMode = 0600
+	if len(perm) > 0 {
+		p = perm[0]
+	}
+
 	if !e {
-		err = os.MkdirAll(path, 0600)
+		err = os.MkdirAll(path, p)
 		if err != nil {
 			return err
 		}

@@ -49,6 +49,11 @@ func (p *Ports) IsValid() error {
 		} else if port.Protocol != ProtocolTCP && port.Protocol != ProtocolUDP {
 			return fmt.Errorf("Invalid port protocol: %s", port.Protocol)
 		}
+
+		// The container name has to be specified.
+		if len(port.Container) == 0 {
+			return fmt.Errorf("Missing container name for port %v!", port.Port)
+		}
 	}
 
 	return nil
@@ -59,7 +64,8 @@ func (p *Ports) IsValid() error {
 //#################//
 
 type Port struct {
-	Port int
+	Container string
+	Port      int
 
 	// Optional
 	Protocol    string // tcp or udp. Default is tcp.

@@ -33,8 +33,8 @@ import (
 
 // Update the app.
 func (a *App) Update() error {
-	// Abort if the app is running.
-	if a.IsRunning() {
+	// Abort if any app task is running.
+	if a.IsTaskRunning() {
 		return fmt.Errorf("the app is running!")
 	}
 
@@ -69,6 +69,7 @@ func taskFuncUpdate(app *App) error {
 		// Pull the image.
 		err = docker.Client.PullImage(d.PullImageOptions{
 			Repository: container.Image,
+			Tag:        container.Tag,
 		}, d.AuthConfiguration{})
 
 		if err != nil {
