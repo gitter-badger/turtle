@@ -331,6 +331,15 @@ func startContainers(app *App) (err error) {
 			links[i] = cNamePrefix + l + ":" + l
 		}
 
+		// Create the environment variables slice.
+		env, err := app.getEnv()
+		if err != nil {
+			return err
+		}
+
+		// Add the static environment variables.
+		env = append(container.Env, env...)
+
 		// Create the host config.
 		hostConfig := &d.HostConfig{
 			RestartPolicy:   d.NeverRestart(), // the docker daemon will not restart the container automatically.
@@ -346,7 +355,7 @@ func startContainers(app *App) (err error) {
 			Name: containerName,
 			Config: &d.Config{
 				Image: container.Image,
-				Env:   container.Env,
+				Env:   env,
 			},
 			HostConfig: hostConfig,
 		}

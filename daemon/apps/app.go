@@ -290,3 +290,35 @@ func (a *App) reload() error {
 
 	return a.loadSettings()
 }
+
+// getEnv returns a slice of all environment variables in the form of VAR=value.
+// Static container environment variables are not included.
+func (a *App) getEnv() ([]string, error) {
+	// Get the turtlefile.
+	t, err := a.Turtlefile()
+	if err != nil {
+		return nil, err
+	}
+
+	var list []string
+
+	for _, env := range t.Env {
+		// Check if set in the settings.
+		v, ok := a.settings.Env[env.Name]
+		if !ok || len(v) == 0 {
+			v = env.Default
+		}
+
+		// Add to the env slice.
+		list = append(list, env.Name+"="+v)
+
+		// Add the aliases if present.
+		for _, a := range env.Alias {
+			// Add to the env slice.
+			list = append(list, a+"="+v)
+		}
+
+	}
+
+	return list, nil
+}

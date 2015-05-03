@@ -47,7 +47,8 @@ type EnvValue struct {
 	Name string // Environment variable name.
 
 	// Optional
-	Required    bool   // If this field is required. Default: false
-	Description string // Setup text.
-	Default     string // Default value of the environment variable.
+	Alias       []string // A list of aliases. They will be all set as environment variables.
+	Required    bool     // If this field is required. Default: false
+	Description string   // Setup text.
+	Default     string   // Default value of the environment variable.
 }
