@@ -51,4 +51,5 @@ type EnvValue struct {
 	Required    bool     // If this field is required. Default: false
 	Description string   // Setup text.
 	Default     string   // Default value of the environment variable.
+	Containers  []string // Only set the environment variable in the specific container(s).
 }

@@ -293,7 +293,9 @@ func (a *App) reload() error {
 
 // getEnv returns a slice of all environment variables in the form of VAR=value.
 // Static container environment variables are not included.
-func (a *App) getEnv() ([]string, error) {
+// The containerName has to be passed to filter out environment variables
+// which should be set only for specific containers.
+func (a *App) getEnv(containerName string) ([]string, error) {
 	// Get the turtlefile.
 	t, err := a.Turtlefile()
 	if err != nil {
@@ -303,6 +305,21 @@ func (a *App) getEnv() ([]string, error) {
 	var list []string
 
 	for _, env := range t.Env {
+		// Skip this environment variable if it is not
+		// supposed to be set for this container.
+		if len(env.Containers) > 0 {
+			found := false
+			for _, c := range env.Containers {
+				if c == containerName {
+					found = true
+					break
+				}
+			}
+			if !found {
+				continue
+			}
+		}
+
 		// Check if set in the settings.
 		v, ok := a.settings.Env[env.Name]
 		if !ok || len(v) == 0 {

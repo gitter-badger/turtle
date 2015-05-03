@@ -9,6 +9,7 @@
 * Implement logging features.
 * Create a temporary testing clone of an app during an update.
 * Implement access groups
+* Validate the Turtlefile for invalid env.containes and port.container values.
 
 
 

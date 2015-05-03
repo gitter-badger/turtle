@@ -42,6 +42,8 @@ func (cc Containers) IsValid() error {
 			return fmt.Errorf("Container name is empty!")
 		} else if len(c.Image) == 0 {
 			return fmt.Errorf("Container '%s' image is empty!", c.Name)
+		} else if strings.Contains(c.Image, ":") {
+			return fmt.Errorf("Container '%s' image '%s' contains an invalid character!", c.Name, c.Image)
 		} else if c.WaitAfterStartup < 0 || c.WaitAfterStartup > maxContainerWaitAfterStartup {
 			return fmt.Errorf("Container '%s' WaitAfterStartup '%v' value has an invalid range!", c.Name, c.WaitAfterStartup)
 		}

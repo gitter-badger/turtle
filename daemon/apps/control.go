@@ -332,7 +332,7 @@ func startContainers(app *App) (err error) {
 		}
 
 		// Create the environment variables slice.
-		env, err := app.getEnv()
+		env, err := app.getEnv(container.Name)
 		if err != nil {
 			return err
 		}
@@ -354,7 +354,7 @@ func startContainers(app *App) (err error) {
 		options := &d.CreateContainerOptions{
 			Name: containerName,
 			Config: &d.Config{
-				Image: container.Image,
+				Image: container.Image + ":" + container.Tag,
 				Env:   env,
 			},
 			HostConfig: hostConfig,

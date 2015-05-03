@@ -66,6 +66,8 @@ func taskFuncUpdate(app *App) error {
 
 	// Update all docker images.
 	for _, container := range turtlefile.Containers {
+		app.setState("pulling docker image: " + container.Image)
+
 		// Pull the image.
 		err = docker.Client.PullImage(d.PullImageOptions{
 			Repository: container.Image,
