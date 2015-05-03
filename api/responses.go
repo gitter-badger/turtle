@@ -56,3 +56,9 @@ type ResponseErrorMsg struct {
 	Name         string
 	ErrorMessage string
 }
+
+type ResponseHostFingerprintInfo struct {
+	Host        string
+	Trusted     bool
+	Fingerprint string
+}

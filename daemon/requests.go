@@ -149,6 +149,10 @@ func handleRequest(rw http.ResponseWriter, req *http.Request) {
 		data, err = handleRemoveBackup(request)
 	case api.TypeRestoreBackup:
 		data, err = handleRestoreBackup(request)
+	case api.TypeAddHostFingerprint:
+		data, err = handleAddHostFingerprint(request)
+	case api.TypeHostFingerprintInfo:
+		data, err = handleHostFingerprintInfo(request)
 	default:
 		handleError(fmt.Errorf("unkown request type '%v'", request.Type))
 		return
@@ -650,4 +654,66 @@ func handleRestoreBackup(request *api.Request) (interface{}, error) {
 	}
 
 	return nil, nil
+}
+
+// handleAddHostFingerprint adds a new host fingerprint.
+func handleAddHostFingerprint(request *api.Request) (interface{}, error) {
+	// Map the data to the custom type.
+	var data api.RequestAddHostFingerprint
+	err := request.MapTo(&data)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate.
+	if len(data.Fingerprint) == 0 {
+		return nil, fmt.Errorf("missing or invalid data: %+v", data)
+	}
+
+	// Add the fingerprint.
+	err = addHostFingerprint(data.Fingerprint)
+	if err != nil {
+		return nil, fmt.Errorf("failed to add host fingerprint: %v", err)
+	}
+
+	return nil, nil
+}
+
+// handleHostFingerprintInfo obtains the host fingerprint and some information about it.
+func handleHostFingerprintInfo(request *api.Request) (interface{}, error) {
+	// Map the data to the custom type.
+	var data api.RequestHostFingerprintInfo
+	err := request.MapTo(&data)
+	if err != nil {
+		return nil, err
+	}
+
+	// Be sure it is a valid stripped host.
+	data.Host = utils.GetHostFromUrl(data.Host)
+
+	// Validate.
+	if len(data.Host) == 0 {
+		return nil, fmt.Errorf("missing or invalid data: %+v", data)
+	}
+
+	// Check if the fingerprint exists for the host.
+	exists, err := hostFingerprintExists(data.Host)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get information about host fingerprint: %v", err)
+	}
+
+	// Obtain the fingerprint of the host.
+	fingerprint, err := getSshHostFingerprint(data.Host)
+	if err != nil {
+		return nil, fmt.Errorf("failed to obtain host fingerprint: %v", err)
+	}
+
+	// Create the response value.
+	response := &api.ResponseHostFingerprintInfo{
+		Host:        data.Host,
+		Trusted:     exists,
+		Fingerprint: fingerprint,
+	}
+
+	return response, nil
 }

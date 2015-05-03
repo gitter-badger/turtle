@@ -25,21 +25,23 @@ package api
 type Type string
 
 const (
-	TypeAdd           Type = "add"
-	TypeRemove        Type = "remove"
-	TypeInfo          Type = "info"
-	TypeList          Type = "list"
-	TypeListBackups   Type = "list-backups"
-	TypeStart         Type = "start"
-	TypeStop          Type = "stop"
-	TypeRestart       Type = "restart"
-	TypeSetupGet      Type = "setup-get"
-	TypeSetupSet      Type = "setup-set"
-	TypeErrorMsg      Type = "error-msg"
-	TypeUpdate        Type = "update"
-	TypeBackup        Type = "backup"
-	TypeRemoveBackup  Type = "remove-backup"
-	TypeRestoreBackup Type = "restore-backup"
+	TypeAdd                 Type = "add"
+	TypeRemove              Type = "remove"
+	TypeInfo                Type = "info"
+	TypeList                Type = "list"
+	TypeListBackups         Type = "list-backups"
+	TypeStart               Type = "start"
+	TypeStop                Type = "stop"
+	TypeRestart             Type = "restart"
+	TypeSetupGet            Type = "setup-get"
+	TypeSetupSet            Type = "setup-set"
+	TypeErrorMsg            Type = "error-msg"
+	TypeUpdate              Type = "update"
+	TypeBackup              Type = "backup"
+	TypeRemoveBackup        Type = "remove-backup"
+	TypeRestoreBackup       Type = "restore-backup"
+	TypeAddHostFingerprint  Type = "add-host-fingerprint"
+	TypeHostFingerprintInfo Type = "host-fingerprint-info"
 )
 
 //####################//
@@ -106,4 +108,12 @@ type RequestRemoveBackup struct {
 type RequestRestoreBackup struct {
 	Name string // App name
 	Unix string // Backup unix timestamp
+}
+
+type RequestAddHostFingerprint struct {
+	Fingerprint string
+}
+
+type RequestHostFingerprintInfo struct {
+	Host string
 }

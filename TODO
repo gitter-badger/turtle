@@ -2,7 +2,6 @@
 ### Daemon
 ###
 
-* add ssh host key 
 * Implement automatic backup with encrypted compressed export.
 
 * Sort the backup list before sending it to the client.

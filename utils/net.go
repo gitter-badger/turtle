@@ -64,3 +64,22 @@ func RemovePortFromRemoteAddr(remoteAddr string) string {
 
 	return remoteAddr[:pos]
 }
+
+// GetHostFromUrl extracts the host from an URL.
+func GetHostFromUrl(url string) string {
+	url = strings.TrimSpace(url)
+
+	if strings.HasPrefix(url, "http://") {
+		url = strings.TrimPrefix(url, "http://")
+	} else if strings.HasPrefix(url, "https://") {
+		url = strings.TrimPrefix(url, "https://")
+	} else if strings.HasPrefix(url, "git@") {
+		url = strings.TrimPrefix(url, "git@")
+	}
+
+	if pos := strings.Index(url, "/"); pos >= 0 {
+		url = url[:pos]
+	}
+
+	return url
+}

@@ -22,6 +22,7 @@ import (
 	"fmt"
 
 	"github.com/desertbit/turtle/api"
+	"github.com/desertbit/turtle/utils"
 )
 
 func init() {
@@ -74,6 +75,11 @@ func (c CmdAdd) Run(args []string) error {
 		return nil
 	}
 
+	// Add the host fingerprint if not trusted yet.
+	if err = c.HandleHostFingerprint(sourceURL); err != nil {
+		return err
+	}
+
 	// Create a new add request.
 	request := api.RequestAdd{
 		Name:      name,
@@ -88,6 +94,55 @@ func (c CmdAdd) Run(args []string) error {
 	}
 
 	fmt.Println("Successfully added new app.")
+
+	return nil
+}
+
+func (c CmdAdd) HandleHostFingerprint(sourceURL string) error {
+	host := utils.GetHostFromUrl(sourceURL)
+
+	// Create a new info request.
+	request := api.RequestHostFingerprintInfo{
+		Host: host,
+	}
+
+	// Send the info request to the daemon.
+	response, err := sendRequest(api.TypeHostFingerprintInfo, request)
+	if err != nil {
+		return err
+	}
+
+	// Map the response data to the info value.
+	var info api.ResponseHostFingerprintInfo
+	if err = response.MapTo(&info); err != nil {
+		return err
+	}
+
+	// Check if the host fingerprint is already trusted.
+	if info.Trusted {
+		return nil
+	}
+
+	// Ask the user if he trusts the given fingerprint.
+	fmt.Printf("Host fingerprint is missing.\nFingerprint of host '%s':\n\n", host)
+	fmt.Print(colorHint, info.Fingerprint, colorOutput)
+	fmt.Println("\n\nTrust it and add it?")
+
+	// Confirm the request.
+	if !confirmCommit() {
+		return fmt.Errorf("aborted: host fingerprint not trusted by user.")
+	}
+
+	// Create the request to add the fingerprint.
+	rAdd := api.RequestAddHostFingerprint{
+		Fingerprint: info.Fingerprint,
+	}
+
+	// Send the request to the daemon.
+	response, err = sendRequest(api.TypeAddHostFingerprint, rAdd)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
