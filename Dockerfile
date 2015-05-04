@@ -9,7 +9,7 @@ MAINTAINER Roland Singer, roland.singer@desertbit.com
 # Install dependencies.
 RUN export DEBIAN_FRONTEND=noninteractive; \
 	apt-get update && \
-	apt-get install -y libreadline-dev btrfs-tools && \
+	apt-get install -y libreadline-dev btrfs-tools git && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

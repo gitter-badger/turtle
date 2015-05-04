@@ -12,7 +12,7 @@ cp -f ./scripts/host/turtle-docker /bin/turtle-docker
 chmod +x /bin/turtle /bin/turtle-docker
 
 # Add the turtle user.
-useradd --no-create-home --no-user-group --shell /bin/turtle turtle
+useradd --no-user-group --shell /bin/turtle turtle
 
 # Allow to run the turtle-docker command with sudo for the turtle user.
 echo "turtle ALL = (root) NOPASSWD: /bin/turtle-docker" > /etc/sudoers.d/turtle

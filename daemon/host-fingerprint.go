@@ -27,6 +27,8 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
+
+	"github.com/desertbit/turtle/utils"
 )
 
 func getKnownHostsFilePath() (string, error) {
@@ -44,6 +46,14 @@ func hostFingerprintExists(host string) (bool, error) {
 	path, err := getKnownHostsFilePath()
 	if err != nil {
 		return false, err
+	}
+
+	// Check if file exists.
+	e, err := utils.Exists(path)
+	if err != nil {
+		return false, err
+	} else if !e {
+		return false, nil
 	}
 
 	// Open the file.
@@ -78,6 +88,12 @@ func addHostFingerprint(fingerprint string) error {
 
 	// Get the know_hosts file path.
 	path, err := getKnownHostsFilePath()
+	if err != nil {
+		return err
+	}
+
+	// Create the .ssh directory if not present.
+	err = utils.MkDirIfNotExists(filepath.Dir(path))
 	if err != nil {
 		return err
 	}
