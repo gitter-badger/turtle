@@ -1,0 +1,5 @@
+#!/bin/sh
+# This script is a helper script for ssh.
+
+# Run the turtle-docker script with sudo, because it requires root rights.
+exec sudo turtle-docker
