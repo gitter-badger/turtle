@@ -1,18 +1,19 @@
-This is currently in development...
-turtle requires a BTRFS partition mounted to /turtle to save all local data.
+# Turtle - Rock Solid Cluster Management
 
-turtle is restoring apps which where running during the last daemon shutdown.
-Automatically removes old backups.
+Turtle is a docker and cluster management tool. It manages Turtle Apps which can be deployed within seconds. It offers an unique and powerful backup system, based on BTRFS snapshots.
+
+## Requirements
+
+Turtle requires a BTRFS partition mounted to /turtle.
+All apps and backups are stored in that location.
+
+# Installation
 
 
+```
+docker pull desertbit/turtle
+```
 
-Dependencies: GNU readline library and btrfs tools
-
-
-docker run --privileged --name=turtle -v /var/run/docker.sock:/var/run/docker.sock -v /turtle:/turtle 1b5367bac09a
 docker exec -i -t turtle turtle-client
 
 
-## Encryption
-
-openssl rand -base64 40
