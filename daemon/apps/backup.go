@@ -52,7 +52,7 @@ func (a *App) backup() error {
 	// Don't backup during some special app tasks.
 	if a.task == taskCloneSource ||
 		a.task == taskUpdate {
-		return fmt.Errorf("can't backup app '%s' during an update task!")
+		return fmt.Errorf("can't backup app '%s' during an update task!", a.name)
 	}
 
 	// Get the app's base backup folder.
