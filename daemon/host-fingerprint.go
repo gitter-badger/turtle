@@ -99,7 +99,7 @@ func addHostFingerprint(fingerprint string) error {
 	}
 
 	// Open the file.
-	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0600)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		return err
 	}
