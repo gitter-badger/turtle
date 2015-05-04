@@ -4,6 +4,7 @@
 
 * Implement automatic backup with encrypted compressed export.
 
+* Check if the host fingerprint is missing also on the update command.
 * Sort the backup list before sending it to the client.
 * Implement logging features.
 * Create a temporary testing clone of an app during an update.

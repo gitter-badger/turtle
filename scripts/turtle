@@ -1,0 +1,5 @@
+#!/bin/sh
+# This script is a helper script for ssh.
+
+# Run the turtle client in the docker container.
+exec docker exec -i -t turtle turtle-client
