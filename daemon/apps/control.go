@@ -294,20 +294,6 @@ func startContainers(app *App) (err error) {
 			}
 		}
 
-		// Create the bind volumes slice.
-		binds := make([]string, len(container.Volumes)+len(container.StaticVolumes))
-		i := 0
-		for _, v := range container.Volumes {
-			binds[i] = filepath.Clean(volumesPath+"/"+container.Name+"/"+v) + ":" + v
-			i++
-		}
-
-		// Add the static volume mount.
-		for _, v := range container.StaticVolumes {
-			binds[i] = v
-			i++
-		}
-
 		// Create the port bindings.
 		portBindings := make(map[d.Port][]d.PortBinding)
 		for _, p := range app.settings.Ports {
@@ -340,6 +326,9 @@ func startContainers(app *App) (err error) {
 		// Add the static environment variables.
 		env = append(container.Env, env...)
 
+		// Create the bind volumes slice.
+		binds := container.GetVolumeBinds(volumesPath)
+
 		// Create the host config.
 		hostConfig := &d.HostConfig{
 			RestartPolicy:   d.NeverRestart(), // the docker daemon will not restart the container automatically.
@@ -348,6 +337,7 @@ func startContainers(app *App) (err error) {
 			PublishAllPorts: false,
 			PortBindings:    portBindings,
 			Binds:           binds,
+			NetworkMode:     container.NetworkMode,
 		}
 
 		// Create the container options.

@@ -20,13 +20,16 @@ package turtlefile
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 )
 
 const (
-	DefaultImageTag = "latest"
+	DefaultImageTag    = "latest"
+	DefaultNetworkMode = "bridge"
 
 	maxContainerWaitAfterStartup = 20000 // seconds
+	readonlyVolumeSuffix         = ":ro"
 )
 
 //#######################//
@@ -49,7 +52,7 @@ func (cc Containers) IsValid() error {
 		}
 
 		for _, v := range c.Volumes {
-			if strings.Contains(v, ":") {
+			if strings.Contains(strings.TrimSuffix(v, readonlyVolumeSuffix), ":") {
 				return fmt.Errorf("Container '%s': volume '%s' contains invalid character ':'!", c.Name, v)
 			} else if strings.Contains(v, "..") {
 				return fmt.Errorf("Container '%s': volume '%s' contains invalid character '..'!", c.Name, v)
@@ -65,6 +68,9 @@ func (cc Containers) Prepare() error {
 		// Set the default image tag if not set.
 		if len(c.Tag) == 0 {
 			c.Tag = DefaultImageTag
+		}
+		if len(c.NetworkMode) == 0 {
+			c.NetworkMode = DefaultNetworkMode
 		}
 	}
 
@@ -140,9 +146,30 @@ type Container struct {
 	Tag              string   // The image tag.
 	WaitAfterStartup int      // Wait x milliseconds after the container started. This delays the next container startup.
 	Links            []string // List of linked container names.
-	Volumes          []string // List of volume mount points.
+	Volumes          []string // List of volume mount points. A valid suffix for read-only mount is ':ro'.
 	StaticVolumes    []string // List of static predefined volume mount points.
 	Env              []string // A list of static predefined environment variables in the form of VAR=value.
+	NetworkMode      string   `toml:"Net"` // Set the Network mode for the container. Default: bridge
+}
+
+// GetVolumeBinds returns a valid docker list of all container volume binds.
+func (c *Container) GetVolumeBinds(volumesPath string) []string {
+	binds := make([]string, len(c.Volumes)+len(c.StaticVolumes))
+
+	// Create the bind volumes slice.
+	i := 0
+	for _, v := range c.Volumes {
+		binds[i] = filepath.Clean(volumesPath+"/"+c.Name+"/"+strings.TrimSuffix(v, readonlyVolumeSuffix)) + ":" + v
+		i++
+	}
+
+	// Add the static volume mount.
+	for _, v := range c.StaticVolumes {
+		binds[i] = v
+		i++
+	}
+
+	return binds
 }
 
 //###############//
