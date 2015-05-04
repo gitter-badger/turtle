@@ -8,7 +8,7 @@ TimeoutStartSec=0
 Restart=always
 ExecStartPre=-/usr/bin/docker stop turtle
 ExecStartPre=-/usr/bin/docker rm turtle
-ExecStart=docker run --privileged --name=turtle -v /var/run/docker.sock:/var/run/docker.sock -v /turtle:/turtle desertbit/turtle
+ExecStart=/usr/bin/docker run --privileged --name=turtle -v /var/run/docker.sock:/var/run/docker.sock -v /turtle:/turtle desertbit/turtle
 
 [Install]
 Alias=turtle.service
