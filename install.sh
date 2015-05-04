@@ -6,9 +6,9 @@ set -e
 docker pull desertbit/turtle
 
 # Install the files.
-cp -f ./scripts/turtle.service /etc/systemd/system/turtle.service
-cp -f ./scripts/host/turtle /bin/turtle
-cp -f ./scripts/host/turtle-docker /bin/turtle-docker
+cp -f ./files/host/turtle.service /etc/systemd/system/turtle.service
+cp -f ./files/host/turtle /bin/turtle
+cp -f ./files/host/turtle-docker /bin/turtle-docker
 chmod +x /bin/turtle /bin/turtle-docker
 
 # Add the turtle user.

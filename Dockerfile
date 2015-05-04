@@ -25,8 +25,8 @@ RUN go get github.com/desertbit/turtle/daemon && \
 	rm -r /go/src
 
 # Add additional scripts.
-ADD ./scripts/turtle-crypt /usr/bin/turtle-crypt
-ADD ./scripts/turtle-client /usr/bin/turtle-client
+ADD ./files/turtle-crypt /usr/bin/turtle-crypt
+ADD ./files/turtle-client /usr/bin/turtle-client
 RUN chmod +x /usr/bin/turtle-crypt /usr/bin/turtle-client
 
 # Add the ssh client user
