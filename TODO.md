@@ -1,6 +1,7 @@
 ## Daemon
 
-* Add possibility to build docker image from source.
+* Rebuild on update
+
 * command option
 * Implement automatic backup with encrypted compressed export.
 * Add exclude automatic backup option

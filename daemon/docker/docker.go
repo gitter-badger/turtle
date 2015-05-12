@@ -19,7 +19,12 @@
 package docker
 
 import (
+	"archive/tar"
+	"bytes"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -232,6 +237,91 @@ func GetContainersByName(names ...string) ([]*docker.Container, error) {
 	}
 
 	return result, nil
+}
+
+// Build a docker image from a local directory.
+func Build(name, dir string) error {
+	if len(name) == 0 || len(dir) == 0 {
+		return fmt.Errorf("build docker image: invalid arguments!")
+	}
+
+	// Create a buffer to write our archive to.
+	buf := bytes.NewBuffer(nil)
+
+	err := func() (err error) {
+		// Create a new tar archive.
+		tw := tar.NewWriter(buf)
+
+		// Check the error on Close.
+		defer func() {
+			if err != nil {
+				tw.Close()
+			} else {
+				err = tw.Close()
+			}
+		}()
+
+		// Based on: https://stackoverflow.com/questions/13611100/how-to-write-a-directory-not-just-the-files-in-it-to-a-tar-gz-file-in-golang
+		walkFn := func(path string, info os.FileInfo, err error) error {
+			// SKip hidden files and hidden directories.
+			if strings.HasPrefix(info.Name(), ".") {
+				return filepath.SkipDir
+			}
+			// Skip directories. The directory contents are added if there are any.
+			if info.Mode().IsDir() {
+				return nil
+			}
+			// Because of scoping we can reference the external dir variable
+			new_path := path[len(dir):]
+			if len(new_path) == 0 {
+				return nil
+			}
+			fr, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer fr.Close()
+
+			if h, err := tar.FileInfoHeader(info, new_path); err != nil {
+				return err
+			} else {
+				h.Name = new_path
+				if err = tw.WriteHeader(h); err != nil {
+					return err
+				}
+			}
+			if _, err = io.Copy(tw, fr); err != nil {
+				return err
+			}
+			return nil
+		}
+
+		if err = filepath.Walk(dir, walkFn); err != nil {
+			return err
+		}
+
+		return nil
+	}()
+	if err != nil {
+		return fmt.Errorf("failed to build image '%s': failed to tar files in '%s': %v", name, dir, err)
+	}
+
+	// Create the output buffer.
+	outputbuf := bytes.NewBuffer(nil)
+
+	// Create the build options.
+	opts := docker.BuildImageOptions{
+		Name:           name,
+		RmTmpContainer: true,
+		InputStream:    buf,
+		OutputStream:   outputbuf,
+	}
+
+	if err := Client.BuildImage(opts); err != nil {
+		return fmt.Errorf("failed to build image '%s': %v\nbuild output: %s", name, err, outputbuf.String())
+	}
+
+	return nil
 }
 
 // OnEvent adds the function to the events map and returns its unique ID.

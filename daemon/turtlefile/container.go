@@ -45,7 +45,7 @@ func (cc Containers) IsValid() error {
 			return fmt.Errorf("Container name is empty!")
 		} else if len(c.Image) == 0 {
 			return fmt.Errorf("Container '%s' image is empty!", c.Name)
-		} else if strings.Contains(c.Image, ":") {
+		} else if strings.Contains(c.Image, ":") || strings.Contains(c.Image, "..") {
 			return fmt.Errorf("Container '%s' image '%s' contains an invalid character!", c.Name, c.Image)
 		} else if c.WaitAfterStartup < 0 || c.WaitAfterStartup > maxContainerWaitAfterStartup {
 			return fmt.Errorf("Container '%s' WaitAfterStartup '%v' value has an invalid range!", c.Name, c.WaitAfterStartup)
@@ -140,7 +140,7 @@ func (cc Containers) Sort() error {
 
 type Container struct {
 	Name  string // Container name.
-	Image string // Docker image name.
+	Image string // Docker image name. If the image name starts with a dot, then it will be build from the source directory. Subdirectories can be specified after the dot.
 
 	// Optional
 	Tag              string   // The image tag.
@@ -157,6 +157,17 @@ type Container struct {
 	Domainname       string   // A string value containing the desired domain name to use for the container.
 	NetworkDisabled  bool     // Boolean value, when true disables neworking for the container
 	NetworkMode      string   `toml:"Net"` // Set the Network mode for the container. Default: bridge
+}
+
+// IsLocalBuild returns a boolean whenever this container image should be build from the local source.
+func (c *Container) IsLocalBuild() bool {
+	return strings.HasPrefix(c.Image, ".")
+}
+
+// BuildPath returns the local build path for the container image.
+// Pass the app's source path.
+func (c *Container) BuildPath(sourcePath string) string {
+	return filepath.Clean(sourcePath + "/" + strings.TrimPrefix(c.Image, "."))
 }
 
 // GetVolumeBinds returns a valid docker list of all container volume binds.

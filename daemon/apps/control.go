@@ -264,8 +264,9 @@ func startContainers(app *App) (err error) {
 	// Clear the container IDs slice.
 	app.containerIDs = nil
 
-	// Get the app's volumes directory path.
+	// Get the app's directory path.
 	volumesPath := app.VolumesDirectoryPath()
+	sourcePath := app.SourceDirectoryPath()
 
 	// Get the turtlefile.
 	turtlefile, err := app.Turtlefile()
@@ -340,9 +341,19 @@ func startContainers(app *App) (err error) {
 			NetworkMode:     container.NetworkMode,
 		}
 
+		// Check if the container image should be build from source locally.
+		isLocalBuild := container.IsLocalBuild()
+
+		// Create the container image and image name.
+		imageName := container.Image
+		if isLocalBuild {
+			imageName = containerName
+		}
+		image := imageName + ":" + container.Tag
+
 		// Create the container config.
 		cConfig := &d.Config{
-			Image:           container.Image + ":" + container.Tag,
+			Image:           image,
 			Hostname:        container.Hostname,
 			Domainname:      container.Domainname,
 			Env:             env,
@@ -361,18 +372,31 @@ func startContainers(app *App) (err error) {
 		}
 
 		// Check if the image exists.
-		_, err = docker.Client.InspectImage(container.Image)
+		_, err = docker.Client.InspectImage(image)
 		if err != nil {
-			app.setState("pulling docker image: " + container.Image)
+			// Check whenever to build or pull the image.
+			if isLocalBuild {
+				// Build the local image.
+				app.setState("building local docker image: " + image)
 
-			// Pull the image.
-			err = docker.Client.PullImage(d.PullImageOptions{
-				Repository: container.Image,
-				Tag:        container.Tag,
-			}, d.AuthConfiguration{})
+				// Build the local image.
+				err = docker.Build(image, container.BuildPath(sourcePath))
+				if err != nil {
+					return err
+				}
+			} else {
+				// Pull the image.
+				app.setState("pulling docker image: " + image)
 
-			if err != nil {
-				return fmt.Errorf("failed to pull docker image '%s': %v", container.Image, err)
+				// Pull the image.
+				err = docker.Client.PullImage(d.PullImageOptions{
+					Repository: container.Image,
+					Tag:        container.Tag,
+				}, d.AuthConfiguration{})
+
+				if err != nil {
+					return fmt.Errorf("failed to pull docker image '%s': %v", image, err)
+				}
 			}
 		}
 

@@ -693,7 +693,19 @@ func handleHostFingerprintInfo(request *api.Request) (interface{}, error) {
 
 	// Validate.
 	if len(data.Host) == 0 {
-		return nil, fmt.Errorf("missing or invalid data: %+v", data)
+		return nil, fmt.Errorf("invalid host: '%s'", data.Host)
+	}
+
+	// Skip host fingerprint checking if this is a local repository.
+	if strings.HasPrefix(data.Host, "file://") {
+		// Create the response value.
+		response := &api.ResponseHostFingerprintInfo{
+			Host:        data.Host,
+			Trusted:     true,
+			Fingerprint: "",
+		}
+
+		return response, nil
 	}
 
 	// Check if the fingerprint exists for the host.

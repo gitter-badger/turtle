@@ -66,8 +66,14 @@ func RemovePortFromRemoteAddr(remoteAddr string) string {
 }
 
 // GetHostFromUrl extracts the host from an URL.
+// Local file urls starting with 'file://' are skipped.
 func GetHostFromUrl(url string) string {
 	url = strings.TrimSpace(url)
+
+	// Skip if this is a local file url.
+	if strings.HasPrefix(url, "file://") {
+		return url
+	}
 
 	if strings.HasPrefix(url, "http://") {
 		url = strings.TrimPrefix(url, "http://")
