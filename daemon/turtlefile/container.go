@@ -149,6 +149,13 @@ type Container struct {
 	Volumes          []string // List of volume mount points. A valid suffix for read-only mount is ':ro'.
 	StaticVolumes    []string // List of static predefined volume mount points.
 	Env              []string // A list of static predefined environment variables in the form of VAR=value.
+	Cmd              []string // Specifiy a custom container command.
+	Entrypoint       []string // Specifiy a custom container entrypoint.
+	WorkingDir       string   // A string value containing the working dir for commands to run in.
+	DNS              []string // A list of dns servers for the container to use.
+	Hostname         string   // A string value containing the desired hostname to use for the container.
+	Domainname       string   // A string value containing the desired domain name to use for the container.
+	NetworkDisabled  bool     // Boolean value, when true disables neworking for the container
 	NetworkMode      string   `toml:"Net"` // Set the Network mode for the container. Default: bridge
 }
 

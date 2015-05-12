@@ -340,13 +340,23 @@ func startContainers(app *App) (err error) {
 			NetworkMode:     container.NetworkMode,
 		}
 
+		// Create the container config.
+		cConfig := &d.Config{
+			Image:           container.Image + ":" + container.Tag,
+			Hostname:        container.Hostname,
+			Domainname:      container.Domainname,
+			Env:             env,
+			Cmd:             container.Cmd,
+			Entrypoint:      container.Entrypoint,
+			WorkingDir:      container.WorkingDir,
+			DNS:             container.DNS,
+			NetworkDisabled: container.NetworkDisabled,
+		}
+
 		// Create the container options.
 		options := &d.CreateContainerOptions{
-			Name: containerName,
-			Config: &d.Config{
-				Image: container.Image + ":" + container.Tag,
-				Env:   env,
-			},
+			Name:       containerName,
+			Config:     cConfig,
 			HostConfig: hostConfig,
 		}
 
