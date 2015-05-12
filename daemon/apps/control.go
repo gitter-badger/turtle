@@ -274,8 +274,8 @@ func startContainers(app *App) (err error) {
 		return err
 	}
 
-	// Create the container name prefix.
-	cNamePrefix := docker.TurtlePrefix + app.Name() + "."
+	// Get the container name prefix.
+	cNamePrefix := app.ContainerNamePrefix()
 
 	// Start each app container.
 	// Hint: the containers are already sorted by the turtlefile Load method.
@@ -380,9 +380,9 @@ func startContainers(app *App) (err error) {
 				app.setState("building local docker image: " + image)
 
 				// Build the local image.
-				err = docker.Build(image, container.BuildPath(sourcePath))
+				err = docker.Build(imageName, container.Tag, container.BuildPath(sourcePath))
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to build image '%s': %v", image, err)
 				}
 			} else {
 				// Pull the image.

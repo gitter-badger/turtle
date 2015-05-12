@@ -29,6 +29,7 @@ import (
 
 	"github.com/desertbit/turtle/daemon/btrfs"
 	"github.com/desertbit/turtle/daemon/config"
+	"github.com/desertbit/turtle/daemon/docker"
 	"github.com/desertbit/turtle/daemon/turtlefile"
 	"github.com/desertbit/turtle/utils"
 
@@ -121,6 +122,11 @@ func loadApp(name string) (*App, error) {
 // Name returns the App's name.
 func (a *App) Name() string {
 	return a.name
+}
+
+// ContainerNamePrefix creates the container name prefix for all app containers.
+func (a *App) ContainerNamePrefix() string {
+	return docker.TurtlePrefix + a.name + "."
 }
 
 // SourceURL returns the app's source url.

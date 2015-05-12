@@ -64,18 +64,48 @@ func taskFuncUpdate(app *App) error {
 		return err
 	}
 
+	// Get the container name prefix.
+	cNamePrefix := app.ContainerNamePrefix()
+
+	// Get the app's source path.
+	sourcePath := app.SourceDirectoryPath()
+
 	// Update all docker images.
 	for _, container := range turtlefile.Containers {
-		app.setState("pulling docker image: " + container.Image)
+		isLocalBuild := container.IsLocalBuild()
 
-		// Pull the image.
-		err = docker.Client.PullImage(d.PullImageOptions{
-			Repository: container.Image,
-			Tag:        container.Tag,
-		}, d.AuthConfiguration{})
+		// Create the docker container name.
+		containerName := cNamePrefix + container.Name
 
-		if err != nil {
-			return fmt.Errorf("failed to pull docker image '%s': %v", container.Image, err)
+		// Create the container image and image name.
+		imageName := container.Image
+		if isLocalBuild {
+			imageName = containerName
+		}
+		image := imageName + ":" + container.Tag
+
+		// Check whenever to build or pull the image.
+		if isLocalBuild {
+			// Build the local image.
+			app.setState("building local docker image: " + image)
+
+			// Build the local image.
+			err = docker.Build(imageName, container.Tag, container.BuildPath(sourcePath))
+			if err != nil {
+				return fmt.Errorf("failed to build image '%s': %v", image, err)
+			}
+		} else {
+			app.setState("pulling docker image: " + image)
+
+			// Pull the image.
+			err = docker.Client.PullImage(d.PullImageOptions{
+				Repository: container.Image,
+				Tag:        container.Tag,
+			}, d.AuthConfiguration{})
+
+			if err != nil {
+				return fmt.Errorf("failed to pull docker image '%s': %v", image, err)
+			}
 		}
 	}
 

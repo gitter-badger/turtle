@@ -38,6 +38,9 @@ const (
 	TurtlePrefix = "turtle."
 
 	killAfterTimeout = 10 // in seconds
+
+	imageBuildTag = "turtle-build"
+	imageOldTag   = "turtle-old"
 )
 
 var (
@@ -240,8 +243,8 @@ func GetContainersByName(names ...string) ([]*docker.Container, error) {
 }
 
 // Build a docker image from a local directory.
-func Build(name, dir string) error {
-	if len(name) == 0 || len(dir) == 0 {
+func Build(imageName, tag, dir string) error {
+	if len(imageName) == 0 || len(tag) == 0 || len(dir) == 0 {
 		return fmt.Errorf("build docker image: invalid arguments!")
 	}
 
@@ -303,7 +306,30 @@ func Build(name, dir string) error {
 		return nil
 	}()
 	if err != nil {
-		return fmt.Errorf("failed to build image '%s': failed to tar files in '%s': %v", name, dir, err)
+		return fmt.Errorf("failed to tar files in '%s': %v", dir, err)
+	}
+
+	// Create the build image name with tag.
+	buildImage := imageName + ":" + imageBuildTag
+
+	// Function to remove the build image if present.
+	removeBuildImage := func() error {
+		// Check if a previous build image exists.
+		// Remove it if present.
+		_, err := Client.InspectImage(buildImage)
+		if err == nil {
+			err = Client.RemoveImage(buildImage)
+			if err != nil {
+				return fmt.Errorf("failed to remove previous build image '%s': %v", buildImage, err)
+			}
+		}
+		return nil
+	}
+
+	// Remove the build image if present.
+	err = removeBuildImage()
+	if err != nil {
+		return err
 	}
 
 	// Create the output buffer.
@@ -311,14 +337,63 @@ func Build(name, dir string) error {
 
 	// Create the build options.
 	opts := docker.BuildImageOptions{
-		Name:           name,
+		Name:           buildImage,
 		RmTmpContainer: true,
 		InputStream:    buf,
 		OutputStream:   outputbuf,
 	}
 
+	// Build the image.
 	if err := Client.BuildImage(opts); err != nil {
-		return fmt.Errorf("failed to build image '%s': %v\nbuild output: %s", name, err, outputbuf.String())
+		return fmt.Errorf("%v\nbuild output:\n%s", err, outputbuf.String())
+	}
+
+	// Remove the build image on defer.
+	// The error is not important.
+	defer func() {
+		err := removeBuildImage()
+		if err != nil {
+			log.Errorf("failed to remove temporary build image '%s'!", buildImage)
+		}
+	}()
+
+	// Check if the old image exists.
+	// Remove it if present.
+	oldImage := imageName + ":" + imageOldTag
+	_, err = Client.InspectImage(oldImage)
+	if err == nil {
+		err = Client.RemoveImage(oldImage)
+		if err != nil {
+			return fmt.Errorf("failed to remove old image '%s': %v", oldImage, err)
+		}
+	}
+
+	// Tag the current image to the old image tag if it exists.
+	image := imageName + ":" + tag
+	_, err = Client.InspectImage(image)
+	if err == nil {
+		opts := docker.TagImageOptions{
+			Repo:  imageName,
+			Tag:   imageOldTag,
+			Force: true,
+		}
+
+		err = Client.TagImage(image, opts)
+		if err != nil {
+			return fmt.Errorf("failed to tag current image '%s': %v", image, err)
+		}
+	}
+
+	// Tag the build image to the new current image.
+	optsT := docker.TagImageOptions{
+		Repo:  imageName,
+		Tag:   tag,
+		Force: true,
+	}
+
+	err = Client.TagImage(buildImage, optsT)
+	if err != nil {
+		return fmt.Errorf("failed to tag build image '%s': %v", buildImage, err)
 	}
 
 	return nil
