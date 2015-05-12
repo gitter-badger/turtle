@@ -81,7 +81,7 @@ var (
 	port string = "28239"
 
 	// Prompt
-	prompt string = colorPrompt + "[tutle]$ " + colorReset + colorInput
+	prompt string = colorPrompt + "[turtle]$ " + colorReset + colorInput
 )
 
 func main() {

@@ -1,13 +1,14 @@
 ## Daemon
 
-* keep the authorized keys file in the docker container. make it persistant
+* Add possibility to build docker image from source.
+* command option
 * Implement automatic backup with encrypted compressed export.
 * Add exclude automatic backup option
 
-* Add possibility to build docker image from source. 
 * Check if the host fingerprint is missing also on the update command.
 * Sort the backup list before sending it to the client.
 * Implement logging features.
+* log cpu, storage, memory usage of each app.
 * Create a temporary testing clone of an app during an update.
 * Implement access groups
 * Validate the Turtlefile for invalid env.containes and port.container values.

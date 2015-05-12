@@ -93,6 +93,11 @@ func prepareEnv() (err error) {
 		}
 	}
 
+	// Populate the saved host file.
+	if err = populateKnownHosts(); err != nil {
+		return err
+	}
+
 	// Initialize and load the apps.
 	if err = apps.LoadApps(); err != nil {
 		return err

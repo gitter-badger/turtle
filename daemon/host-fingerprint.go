@@ -28,25 +28,51 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/desertbit/turtle/daemon/config"
 	"github.com/desertbit/turtle/utils"
 )
 
-func getKnownHostsFilePath() (string, error) {
-	usr, err := user.Current()
+func populateKnownHosts() error {
+	// Get the turtle known_hosts file path.
+	src := config.Config.KnownHostsFilePath()
+
+	// Skip if it does not exists.
+	e, err := utils.Exists(src)
 	if err != nil {
-		return "", err
+		return err
+	} else if !e {
+		return nil
 	}
 
-	return filepath.Clean(usr.HomeDir + "/.ssh/known_hosts"), nil
+	// Get the current user value.
+	usr, err := user.Current()
+	if err != nil {
+		return err
+	}
+
+	// Create the user's known_hosts file path.
+	dest := filepath.Clean(usr.HomeDir + "/.ssh/known_hosts")
+
+	// Create the .ssh directory if not present.
+	err = utils.MkDirIfNotExists(filepath.Dir(dest))
+	if err != nil {
+		return err
+	}
+
+	// Copy the turtle known_hosts file to the final destination.
+	// If the destination exists, it will be overwritten.
+	err = utils.CopyFile(src, dest)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // hostFingerprintExists checks whenever a host fingerprint exists.
 func hostFingerprintExists(host string) (bool, error) {
 	// Get the know_hosts file path.
-	path, err := getKnownHostsFilePath()
-	if err != nil {
-		return false, err
-	}
+	path := config.Config.KnownHostsFilePath()
 
 	// Check if file exists.
 	e, err := utils.Exists(path)
@@ -87,30 +113,28 @@ func addHostFingerprint(fingerprint string) error {
 	}
 
 	// Get the know_hosts file path.
-	path, err := getKnownHostsFilePath()
+	path := config.Config.KnownHostsFilePath()
+
+	err := func() error {
+		// Open the file.
+		f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		// Append the fingerprint.
+		if _, err = f.WriteString("\n" + fingerprint); err != nil {
+			return err
+		}
+		return nil
+	}()
 	if err != nil {
 		return err
 	}
 
-	// Create the .ssh directory if not present.
-	err = utils.MkDirIfNotExists(filepath.Dir(path))
-	if err != nil {
-		return err
-	}
-
-	// Open the file.
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	// Append the fingerprint.
-	if _, err = f.WriteString("\n" + fingerprint); err != nil {
-		return err
-	}
-
-	return nil
+	// Populate the new host file.
+	return populateKnownHosts()
 }
 
 // getSshHostFingerprint obtains and returns the SSH fingerprint.
