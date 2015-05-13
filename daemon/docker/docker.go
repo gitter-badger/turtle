@@ -242,6 +242,36 @@ func GetContainersByName(names ...string) ([]*docker.Container, error) {
 	return result, nil
 }
 
+// Logs obtains the stderr and stdout log messages from the container.
+func Logs(containerID string, getStdout bool, getStderr bool) (stdout string, stderr string, err error) {
+	// Create the output buffers.
+	outBuf := bytes.NewBuffer(nil)
+	errBuf := bytes.NewBuffer(nil)
+
+	// Create the logs options.
+	opts := docker.LogsOptions{
+		Container:    containerID,
+		Follow:       false,
+		OutputStream: outBuf,
+		ErrorStream:  errBuf,
+		Stdout:       getStdout,
+		Stderr:       getStderr,
+	}
+
+	// Obtain the logs.
+	err = Client.Logs(opts)
+	if err != nil {
+		err = fmt.Errorf("failed to get container '%s' logs: %v", containerID, err)
+		return
+	}
+
+	// Set the strings.
+	stdout = strings.TrimSpace(outBuf.String())
+	stderr = strings.TrimSpace(errBuf.String())
+
+	return
+}
+
 // Build a docker image from a local directory.
 func Build(imageName, tag, dir string) error {
 	if len(imageName) == 0 || len(tag) == 0 || len(dir) == 0 {

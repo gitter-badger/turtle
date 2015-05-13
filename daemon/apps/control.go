@@ -21,6 +21,7 @@ package apps
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/desertbit/turtle/daemon/config"
@@ -376,8 +377,8 @@ func startContainers(app *App) (err error) {
 		if err != nil {
 			// Check whenever to build or pull the image.
 			if isLocalBuild {
-				// Build the local image.
 				app.setState("building local docker image: " + image)
+				log.Infof("building local docker image: %s", image)
 
 				// Build the local image.
 				err = docker.Build(imageName, container.Tag, container.BuildPath(sourcePath))
@@ -385,8 +386,8 @@ func startContainers(app *App) (err error) {
 					return fmt.Errorf("failed to build image '%s': %v", image, err)
 				}
 			} else {
-				// Pull the image.
 				app.setState("pulling docker image: " + image)
+				log.Infof("pulling docker image: %s", image)
 
 				// Pull the image.
 				err = docker.Client.PullImage(d.PullImageOptions{
@@ -401,6 +402,7 @@ func startContainers(app *App) (err error) {
 		}
 
 		app.setState("starting container: " + containerName)
+		log.Infof("starting container: %s", containerName)
 
 		// Create the docker container.
 		c, err = docker.Client.CreateContainer(*options)
@@ -573,7 +575,27 @@ func _checkRestart(app *App, retryCount int) (err error) {
 
 	// Abort and return an error if the retry count is reached.
 	if retryCount > maximumRestartRetryCount {
-		return fmt.Errorf("failed to restart app: max restart retries reached! App '%s' stopped running!", app.name)
+		var errStr string
+
+		// Obtain the error logs from the stopped containers.
+		for _, c := range stoppedContainers {
+			_, stderr, err := docker.Logs(c.ID, false, true)
+			if err != nil {
+				log.Errorln(err)
+				continue
+			}
+
+			// Add a spacing to each error line.
+			lines := strings.Split(stderr, "\n")
+			for i := 0; i < len(lines); i++ {
+				lines[i] = "   " + lines[i]
+			}
+			stderr = "   " + strings.TrimSpace(strings.Join(lines, "\n"))
+
+			errStr += fmt.Sprintf("\n\nContainer '%s' error output:\n%s", c.Name, stderr)
+		}
+
+		return fmt.Errorf("failed to restart app: max restart retries reached! App '%s' stopped running!%s", app.name, errStr)
 	}
 
 	// Set the app state.

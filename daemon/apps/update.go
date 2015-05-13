@@ -24,6 +24,7 @@ import (
 	"github.com/desertbit/turtle/daemon/docker"
 	"github.com/desertbit/turtle/utils"
 
+	log "github.com/Sirupsen/logrus"
 	d "github.com/fsouza/go-dockerclient"
 )
 
@@ -86,8 +87,8 @@ func taskFuncUpdate(app *App) error {
 
 		// Check whenever to build or pull the image.
 		if isLocalBuild {
-			// Build the local image.
 			app.setState("building local docker image: " + image)
+			log.Infof("building local docker image: %s", image)
 
 			// Build the local image.
 			err = docker.Build(imageName, container.Tag, container.BuildPath(sourcePath))
@@ -96,6 +97,7 @@ func taskFuncUpdate(app *App) error {
 			}
 		} else {
 			app.setState("pulling docker image: " + image)
+			log.Infof("pulling docker image: %s", image)
 
 			// Pull the image.
 			err = docker.Client.PullImage(d.PullImageOptions{
