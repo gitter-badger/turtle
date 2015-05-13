@@ -376,6 +376,7 @@ func Build(imageName, tag, dir string) error {
 	// Create the build options.
 	opts := docker.BuildImageOptions{
 		Name:           buildImage,
+		Pull:           true,
 		RmTmpContainer: true,
 		InputStream:    buf,
 		OutputStream:   outputbuf,

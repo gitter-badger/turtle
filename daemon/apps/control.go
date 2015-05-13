@@ -208,14 +208,16 @@ func setupRunEnvironment(app *App) error {
 	// Setup the container volume directories if not present.
 	var path string
 	for _, c := range turtlefile.Containers {
-		if len(c.Volumes) == 0 {
+		// Get all volumes without any suffix...
+		volumes := c.VolumesStripped()
+		if len(volumes) == 0 {
 			continue
 		}
 
 		// Create the base container volume directory path.
 		path = volumesPath + "/" + c.Name
 
-		for _, v := range c.Volumes {
+		for _, v := range volumes {
 			err = utils.MkDirIfNotExists(filepath.Clean(path+"/"+v), 0750)
 			if err != nil {
 				return err

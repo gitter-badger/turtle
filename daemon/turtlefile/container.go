@@ -190,6 +190,21 @@ func (c *Container) GetVolumeBinds(volumesPath string) []string {
 	return binds
 }
 
+// VolumesStripped returns a slice of volumes without any custom suffix.
+func (c *Container) VolumesStripped() []string {
+	if len(c.Volumes) == 0 {
+		return nil
+	}
+
+	volumes := make([]string, len(c.Volumes))
+
+	for i, v := range c.Volumes {
+		volumes[i] = strings.TrimSuffix(v, readonlyVolumeSuffix)
+	}
+
+	return volumes
+}
+
 //###############//
 //### Private ###//
 //###############//
