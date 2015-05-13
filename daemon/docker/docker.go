@@ -266,9 +266,17 @@ func Build(imageName, tag, dir string) error {
 
 		// Based on: https://stackoverflow.com/questions/13611100/how-to-write-a-directory-not-just-the-files-in-it-to-a-tar-gz-file-in-golang
 		walkFn := func(path string, info os.FileInfo, err error) error {
+			// Handle the filepath walk error.
+			if err != nil {
+				return err
+			}
 			// SKip hidden files and hidden directories.
 			if strings.HasPrefix(info.Name(), ".") {
-				return filepath.SkipDir
+				if info.Mode().IsDir() {
+					return filepath.SkipDir
+				} else {
+					return nil
+				}
 			}
 			// Skip directories. The directory contents are added if there are any.
 			if info.Mode().IsDir() {
