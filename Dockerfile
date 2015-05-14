@@ -36,4 +36,4 @@ EXPOSE 28239
 
 VOLUME ["/turtle"]
 
-CMD ["/go/bin/daemon"]
+ENTRYPOINT ["/go/bin/daemon"]

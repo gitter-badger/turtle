@@ -1,9 +1,12 @@
 ## Daemon
 
+* Turtle docker container ist still not terminating nice.
+
 * command option
 * Implement automatic backup with encrypted compressed export.
 * Add exclude automatic backup option
 
+* Check online service (network port pinging, https status requests...)
 * Sort the backup list before sending it to the client.
 * Implement logging features.
 * add possibilities to limit resources for each app.
@@ -19,5 +22,6 @@
 
 ## Client
 
+* Implement an user-friendly export and import option.
 * Implement awesome terminal info screen (https://github.com/gizak/termui)
   Currently commented in cmd_watch.go
