@@ -6,6 +6,7 @@ Requires=docker.service
 [Service]
 TimeoutStartSec=0
 Restart=always
+ExecStop=/usr/bin/docker stop turtle
 ExecStartPre=-/usr/bin/docker stop turtle
 ExecStartPre=-/usr/bin/docker rm turtle
 ExecStart=/usr/bin/docker run --privileged --name=turtle -v /var/run/docker.sock:/var/run/docker.sock -v /turtle:/turtle desertbit/turtle
