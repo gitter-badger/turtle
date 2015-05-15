@@ -24,50 +24,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"os/user"
 	"path/filepath"
 	"strings"
 
 	"github.com/desertbit/turtle/daemon/config"
 	"github.com/desertbit/turtle/utils"
 )
-
-func populateKnownHosts() error {
-	// Get the turtle known_hosts file path.
-	src := config.Config.KnownHostsFilePath()
-
-	// Skip if it does not exists.
-	e, err := utils.Exists(src)
-	if err != nil {
-		return err
-	} else if !e {
-		return nil
-	}
-
-	// Get the current user value.
-	usr, err := user.Current()
-	if err != nil {
-		return err
-	}
-
-	// Create the user's known_hosts file path.
-	dest := filepath.Clean(usr.HomeDir + "/.ssh/known_hosts")
-
-	// Create the .ssh directory if not present.
-	err = utils.MkDirIfNotExists(filepath.Dir(dest))
-	if err != nil {
-		return err
-	}
-
-	// Copy the turtle known_hosts file to the final destination.
-	// If the destination exists, it will be overwritten.
-	err = utils.CopyFile(src, dest)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
 
 // hostFingerprintExists checks whenever a host fingerprint exists.
 func hostFingerprintExists(host string) (bool, error) {
@@ -115,7 +77,13 @@ func addHostFingerprint(fingerprint string) error {
 	// Get the know_hosts file path.
 	path := config.Config.KnownHostsFilePath()
 
-	err := func() error {
+	// Create the base directory if not present.
+	err := utils.MkDirIfNotExists(filepath.Dir(path))
+	if err != nil {
+		return err
+	}
+
+	err = func() error {
 		// Open the file.
 		f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 		if err != nil {
@@ -133,8 +101,7 @@ func addHostFingerprint(fingerprint string) error {
 		return err
 	}
 
-	// Populate the new host file.
-	return populateKnownHosts()
+	return nil
 }
 
 // getSshHostFingerprint obtains and returns the SSH fingerprint.

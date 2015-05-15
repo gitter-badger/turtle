@@ -1,6 +1,5 @@
 ## Daemon
 
-* copy ssh folder
 * command option
 * Implement automatic backup with encrypted compressed export.
 * Add exclude automatic backup option

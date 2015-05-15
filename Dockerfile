@@ -24,6 +24,9 @@ RUN go get github.com/desertbit/turtle/daemon && \
 	go install github.com/desertbit/turtle/client && \
 	rm -r /go/src
 
+# Link the turtle ssh directory to the final ssh location.
+RUN ln -s /turtle/turtle/ssh /root/.ssh
+
 # Add additional scripts.
 ADD ./files/turtle-crypt /usr/bin/turtle-crypt
 ADD ./files/turtle-client /usr/bin/turtle-client

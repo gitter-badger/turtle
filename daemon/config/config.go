@@ -67,5 +67,5 @@ func (c *config) StateFilePath() string {
 
 // KnownHostsFilePath returns the file path to the known and trusted hosts.
 func (c *config) KnownHostsFilePath() string {
-	return c.TurtlePath + "/known_hosts"
+	return c.TurtlePath + "/ssh/known_hosts"
 }
