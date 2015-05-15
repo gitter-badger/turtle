@@ -36,6 +36,7 @@ const (
 	TypeSetupGet            Type = "setup-get"
 	TypeSetupSet            Type = "setup-set"
 	TypeErrorMsg            Type = "error-msg"
+	TypeLogs                Type = "logs"
 	TypeUpdate              Type = "update"
 	TypeBackup              Type = "backup"
 	TypeRemoveBackup        Type = "remove-backup"
@@ -86,6 +87,12 @@ type RequestSetupSet struct {
 
 type RequestErrorMsg struct {
 	Name string // App name
+}
+
+type RequestLogs struct {
+	Name      string // App name
+	Container string // Optional: Container name.
+	Stream    string // Optional: stderr or stdout. Otherwise both.
 }
 
 type RequestUpdate struct {

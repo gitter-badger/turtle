@@ -76,8 +76,5 @@ func (c CmdError) Run(args []string) error {
 		fmt.Printf("Error message:\n%s\n", data.ErrorMessage)
 	}
 
-	// The output color might have changed due to the error message.
-	fmt.Print(colorOutput)
-
 	return nil
 }

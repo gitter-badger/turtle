@@ -581,7 +581,7 @@ func _checkRestart(app *App, retryCount int) (err error) {
 
 		// Obtain the error logs from the stopped containers.
 		for _, c := range stoppedContainers {
-			_, stderr, err := docker.Logs(c.ID, false, true)
+			stderr, err := docker.Logs(c.ID, docker.StdStreamError)
 			if err != nil {
 				log.Errorln(err)
 				continue

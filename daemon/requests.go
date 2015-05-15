@@ -28,6 +28,7 @@ import (
 
 	"github.com/desertbit/turtle/api"
 	"github.com/desertbit/turtle/daemon/apps"
+	"github.com/desertbit/turtle/daemon/docker"
 	"github.com/desertbit/turtle/utils"
 
 	log "github.com/Sirupsen/logrus"
@@ -139,6 +140,8 @@ func handleRequest(rw http.ResponseWriter, req *http.Request) {
 		data, err = handleSetupSet(request)
 	case api.TypeErrorMsg:
 		data, err = handleErrorMsg(request)
+	case api.TypeLogs:
+		data, err = handleLogs(request)
 	case api.TypeUpdate:
 		data, err = handleUpdate(request)
 	case api.TypeBackup:
@@ -488,6 +491,63 @@ func handleErrorMsg(request *api.Request) (interface{}, error) {
 	appErr := a.Error()
 	if appErr != nil {
 		res.ErrorMessage = strings.TrimSpace(appErr.Error())
+	}
+
+	return res, nil
+}
+
+// handleLogs send the log message of an app.
+func handleLogs(request *api.Request) (interface{}, error) {
+	// Map the data to the custom type.
+	var data api.RequestLogs
+	err := request.MapTo(&data)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate.
+	if len(data.Name) == 0 {
+		return nil, fmt.Errorf("missing or invalid data: %+v", data)
+	}
+
+	// Obtain the app with the given name.
+	a, err := apps.Get(data.Name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get log message: %v", err)
+	}
+
+	// Create the response value.
+	res := api.ResponseLogs{}
+
+	// If no specific container is passed,
+	// then send a list of all available containers.
+	if len(data.Container) == 0 {
+		res.Containers, err = a.Containers()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get app containers: %v", err)
+		}
+	} else {
+		var streamType docker.StdStream = docker.StdStreamCombined
+
+		// Get the stream option.
+		if len(data.Stream) > 0 {
+			if data.Stream == "stderr" {
+				streamType = docker.StdStreamError
+			} else if data.Stream == "stdout" {
+				streamType = docker.StdStreamOutput
+			} else {
+				return nil, fmt.Errorf("failed to get log messages: invalid stream option.")
+			}
+		}
+
+		// Get the log messages.
+		logs, err := docker.Logs(a.ContainerNamePrefix()+data.Container, streamType)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get log messages: %v", err)
+		}
+
+		// Set the response log messages.
+		res.LogMessages = logs
 	}
 
 	return res, nil

@@ -203,6 +203,23 @@ func (a *App) Turtlefile() (*turtlefile.Turtlefile, error) {
 	return t, nil
 }
 
+// Containers returns a list of the app's container names.
+func (a *App) Containers() ([]string, error) {
+	// Get the turtle file.
+	t, err := a.Turtlefile()
+	if err != nil {
+		return nil, err
+	}
+
+	// Iterate over the turtlefile containers and fill the slice.
+	containers := make([]string, len(t.Containers))
+	for i, c := range t.Containers {
+		containers[i] = c.Name
+	}
+
+	return containers, nil
+}
+
 // Remove the app.
 func (a *App) Remove(removeBackups bool) error {
 	// Lock the task mutex.

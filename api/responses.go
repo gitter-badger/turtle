@@ -62,3 +62,8 @@ type ResponseHostFingerprintInfo struct {
 	Trusted     bool
 	Fingerprint string
 }
+
+type ResponseLogs struct {
+	Containers  []string // Empty if a specific continer is passed. Otherwise a list of available containers is set.
+	LogMessages string
+}

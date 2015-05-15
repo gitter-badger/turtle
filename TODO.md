@@ -7,7 +7,8 @@
 
 * Check online service (network port pinging, https status requests...)
 * Sort the backup list before sending it to the client.
-* Implement logging features.
+* log: stream data instead of sending a string.
+* Implement improved logging features.
 * add possibilities to limit resources for each app.
 * log cpu, storage, memory usage of each app.
 * Create a temporary testing clone of an app during an update.
