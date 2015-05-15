@@ -21,6 +21,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -37,6 +38,10 @@ import (
 	"github.com/mgutz/ansi"
 )
 
+const (
+	cmdIndent = "  "
+)
+
 //#####################//
 //### Access Groups ###//
 //#####################//
@@ -48,11 +53,15 @@ type Groups []Group
 //### Command type ###//
 //####################//
 
-var commands = make(map[string]Command)
+var (
+	commands        = make(map[string]Command)
+	errInvalidUsage = errors.New("invalid usage.")
+)
 
 type Command interface {
 	Run(args []string) error
 	Help() string
+	PrintUsage()
 }
 
 func AddCommand(key string, command Command) {
@@ -65,13 +74,12 @@ func AddCommand(key string, command Command) {
 
 var (
 	// Terminal ANSI colors.
-	colorInput   = ansi.ColorCode("white")
-	colorPrompt  = ansi.ColorCode("green+bh")
-	colorOutput  = ansi.ColorCode("white+h")
-	colorError   = ansi.ColorCode("red+bh")
-	colorWarning = ansi.ColorCode("yellow+dh")
-	colorHint    = ansi.ColorCode("blue+h")
-	colorReset   = ansi.ColorCode("reset")
+	colorInput  = ansi.ColorCode("white")
+	colorPrompt = ansi.ColorCode("green+bh")
+	colorOutput = ansi.ColorCode("white+h")
+	colorError  = ansi.ColorCode("red+bh")
+	colorHint   = ansi.ColorCode("blue+h")
+	colorReset  = ansi.ColorCode("reset")
 
 	// Create the reader from stdin.
 	reader = bufio.NewReader(os.Stdin)
@@ -182,6 +190,15 @@ func readCommand() {
 	err = cmd.Run(args)
 	if err != nil {
 		fmt.Printf("%serror: %v\n", colorError, err)
+
+		// Print the usage if this is an invalid usage error.
+		if err == errInvalidUsage {
+			// Set to output color.
+			fmt.Print(colorReset, colorOutput, "\n")
+
+			cmd.PrintUsage()
+		}
+
 		return
 	}
 }

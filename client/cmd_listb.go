@@ -33,13 +33,18 @@ func init() {
 type CmdListBackups struct{}
 
 func (c CmdListBackups) Help() string {
-	return "print a list of all backups of an app."
+	return "Print a list of all backups of an app."
+}
+
+func (c CmdListBackups) PrintUsage() {
+	fmt.Println("Usage: listb APP")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdListBackups) Run(args []string) error {
 	// Check if an argument is passed.
 	if len(args) != 1 {
-		return fmt.Errorf("the list command requires an app name as first argument.")
+		return errInvalidUsage
 	}
 
 	// Obtain the app name.

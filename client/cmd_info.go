@@ -34,13 +34,18 @@ func init() {
 type CmdInfo struct{}
 
 func (c CmdInfo) Help() string {
-	return "show detailed information about an app."
+	return "Show detailed information about an app."
+}
+
+func (c CmdInfo) PrintUsage() {
+	fmt.Println("Usage: info APP")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdInfo) Run(args []string) error {
 	// Check if an argument is passed.
 	if len(args) != 1 {
-		return fmt.Errorf("the info command requires an app name as first argument.")
+		return errInvalidUsage
 	}
 
 	// Obtain the app name.

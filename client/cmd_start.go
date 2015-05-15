@@ -33,13 +33,18 @@ func init() {
 type CmdStart struct{}
 
 func (c CmdStart) Help() string {
-	return "start an app."
+	return "Start an app."
+}
+
+func (c CmdStart) PrintUsage() {
+	fmt.Println("Usage: start APP")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdStart) Run(args []string) error {
 	// Check if an argument is passed.
 	if len(args) != 1 {
-		return fmt.Errorf("the start command requires an app name as first argument.")
+		return errInvalidUsage
 	}
 
 	// Obtain the app name.

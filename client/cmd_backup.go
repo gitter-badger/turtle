@@ -33,13 +33,18 @@ func init() {
 type CmdBackup struct{}
 
 func (c CmdBackup) Help() string {
-	return "create a hot backup of an app."
+	return "Create a hot backup of an app."
+}
+
+func (c CmdBackup) PrintUsage() {
+	fmt.Println("Usage: backup APP")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdBackup) Run(args []string) error {
 	// Check if an argument is passed.
 	if len(args) != 1 {
-		return fmt.Errorf("the backup command requires an app name as first argument.")
+		return errInvalidUsage
 	}
 
 	// Obtain the app name.

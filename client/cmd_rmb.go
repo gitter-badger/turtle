@@ -33,13 +33,18 @@ func init() {
 type CmdRmb struct{}
 
 func (c CmdRmb) Help() string {
-	return "remove an app's backup."
+	return "Remove an app's backup."
+}
+
+func (c CmdRmb) PrintUsage() {
+	fmt.Println("Usage: rmb APP BACKUP_TIMESTAMP")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdRmb) Run(args []string) error {
 	// Check if an argument is passed.
 	if len(args) != 2 {
-		return fmt.Errorf("the rmb command requires the app name as first argument and the backup timestamp as second argument.")
+		return errInvalidUsage
 	}
 
 	// Obtain the app name.

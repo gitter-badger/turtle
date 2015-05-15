@@ -33,13 +33,18 @@ func init() {
 type CmdRestart struct{}
 
 func (c CmdRestart) Help() string {
-	return "restart an app."
+	return "Restart an app."
+}
+
+func (c CmdRestart) PrintUsage() {
+	fmt.Println("Usage: restart APP")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdRestart) Run(args []string) error {
 	// Check if an argument is passed.
 	if len(args) != 1 {
-		return fmt.Errorf("the restart command requires an app name as first argument.")
+		return errInvalidUsage
 	}
 
 	// Obtain the app name.

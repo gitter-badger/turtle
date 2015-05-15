@@ -33,13 +33,18 @@ func init() {
 type CmdRestore struct{}
 
 func (c CmdRestore) Help() string {
-	return "restore an app's backup. A backup of the current state is also made."
+	return "Restore an app's backup. A backup of the current state is also made."
+}
+
+func (c CmdRestore) PrintUsage() {
+	fmt.Println("Usage: restore APP BACKUP_TIMESTAMP")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdRestore) Run(args []string) error {
 	// Check if an argument is passed.
 	if len(args) != 2 {
-		return fmt.Errorf("the restore command requires the app name as first argument and the backup timestamp as second argument.")
+		return errInvalidUsage
 	}
 
 	// Obtain the app name.

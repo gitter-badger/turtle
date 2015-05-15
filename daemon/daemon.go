@@ -129,6 +129,7 @@ func btrfsBalanceJob() {
 func main() {
 	// Set the maximum number of CPUs that can be executing simultaneously.
 	runtime.GOMAXPROCS(runtime.NumCPU())
+	log.Infof("GOMAXPROCS: %v", runtime.NumCPU())
 
 	log.Infof("Initializing...")
 

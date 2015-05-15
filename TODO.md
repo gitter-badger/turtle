@@ -1,7 +1,6 @@
 ## Daemon
 
-* Turtle docker container ist still not terminating nice.
-
+* copy ssh folder
 * command option
 * Implement automatic backup with encrypted compressed export.
 * Add exclude automatic backup option

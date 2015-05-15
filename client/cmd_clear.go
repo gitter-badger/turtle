@@ -30,13 +30,18 @@ func init() {
 type CmdClear struct{}
 
 func (c CmdClear) Help() string {
-	return "clear the terminal screen."
+	return "Clear the terminal screen."
+}
+
+func (c CmdClear) PrintUsage() {
+	fmt.Println("Usage: clear")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdClear) Run(args []string) error {
 	// Check if any arguments are passed.
 	if len(args) > 0 {
-		return fmt.Errorf("no arguments expected!")
+		return errInvalidUsage
 	}
 
 	// Clear the terminal.

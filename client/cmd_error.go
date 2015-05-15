@@ -33,13 +33,18 @@ func init() {
 type CmdError struct{}
 
 func (c CmdError) Help() string {
-	return "show the last error message of an app."
+	return "Show the last error message of an app."
+}
+
+func (c CmdError) PrintUsage() {
+	fmt.Println("Usage: error APP")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdError) Run(args []string) error {
 	// Check if an argument is passed.
 	if len(args) != 1 {
-		return fmt.Errorf("the error command requires an app name as first argument.")
+		return errInvalidUsage
 	}
 
 	// Obtain the app name.
@@ -65,16 +70,13 @@ func (c CmdError) Run(args []string) error {
 		return err
 	}
 
-	// Set to hint color.
-	fmt.Print(colorWarning)
-
 	if len(data.ErrorMessage) == 0 {
 		fmt.Println("No errors occurred :)")
 	} else {
 		fmt.Printf("Error message:\n%s\n", data.ErrorMessage)
 	}
 
-	// Set to output color.
+	// The output color might have changed due to the error message.
 	fmt.Print(colorOutput)
 
 	return nil

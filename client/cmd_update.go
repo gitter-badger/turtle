@@ -33,13 +33,18 @@ func init() {
 type CmdUpdate struct{}
 
 func (c CmdUpdate) Help() string {
-	return "update sources and docker images of an app."
+	return "Update sources and docker images of an app."
+}
+
+func (c CmdUpdate) PrintUsage() {
+	fmt.Println("Usage: update APP")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdUpdate) Run(args []string) error {
 	// Check if an argument is passed.
 	if len(args) != 1 {
-		return fmt.Errorf("the update command requires an app name as first argument.")
+		return errInvalidUsage
 	}
 
 	// Obtain the app name.

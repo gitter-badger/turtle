@@ -33,13 +33,18 @@ func init() {
 type CmdStop struct{}
 
 func (c CmdStop) Help() string {
-	return "stop an app."
+	return "Stop an app."
+}
+
+func (c CmdStop) PrintUsage() {
+	fmt.Println("Usage: stop APP")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdStop) Run(args []string) error {
 	// Check if an argument is passed.
 	if len(args) != 1 {
-		return fmt.Errorf("the stop command requires an app name as first argument.")
+		return errInvalidUsage
 	}
 
 	// Obtain the app name.

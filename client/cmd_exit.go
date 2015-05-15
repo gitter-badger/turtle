@@ -30,13 +30,18 @@ func init() {
 type CmdExit struct{}
 
 func (c CmdExit) Help() string {
-	return "exit the turtle shell."
+	return "Exit the turtle shell."
+}
+
+func (c CmdExit) PrintUsage() {
+	fmt.Println("Usage: exit")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdExit) Run(args []string) error {
 	// Check if any arguments are passed.
 	if len(args) > 0 {
-		return fmt.Errorf("no arguments expected!")
+		return errInvalidUsage
 	}
 
 	// Exit the application.

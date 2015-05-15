@@ -33,13 +33,18 @@ func init() {
 type CmdHelp struct{}
 
 func (c CmdHelp) Help() string {
-	return "show all available turtle commands."
+	return "Show all available turtle commands."
+}
+
+func (c CmdHelp) PrintUsage() {
+	fmt.Println("Usage: help")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdHelp) Run(args []string) error {
 	// Check if any arguments are passed.
 	if len(args) > 0 {
-		return fmt.Errorf("no arguments expected!")
+		return errInvalidUsage
 	}
 
 	// Get all command map keys.
@@ -60,7 +65,7 @@ func (c CmdHelp) Run(args []string) error {
 
 	// Print all available commands with a description.
 	for _, key := range keys {
-		printc(key, commands[key].Help())
+		printc(cmdIndent+key, commands[key].Help())
 	}
 
 	// Flush the output.

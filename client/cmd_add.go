@@ -33,13 +33,18 @@ func init() {
 type CmdAdd struct{}
 
 func (c CmdAdd) Help() string {
-	return "add a new app."
+	return "Add a new app."
+}
+
+func (c CmdAdd) PrintUsage() {
+	fmt.Println("Usage: add")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdAdd) Run(args []string) error {
 	// Check if any arguments are passed.
 	if len(args) > 0 {
-		return fmt.Errorf("no arguments expected!")
+		return errInvalidUsage
 	}
 
 	fmt.Println("Add a new app")
@@ -59,7 +64,7 @@ func (c CmdAdd) Run(args []string) error {
 	}
 
 	// Get the app branch.
-	fmt.Print("branch [master]: ")
+	fmt.Print("Branch [master]: ")
 	branch, err := readline("master")
 	if err != nil {
 		return err

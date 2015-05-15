@@ -33,13 +33,18 @@ func init() {
 type CmdRm struct{}
 
 func (c CmdRm) Help() string {
-	return "remove an app with all data."
+	return "Remove an app with all data."
+}
+
+func (c CmdRm) PrintUsage() {
+	fmt.Println("Usage: rm APP")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdRm) Run(args []string) error {
 	// Check if an argument is passed.
 	if len(args) != 1 {
-		return fmt.Errorf("the rm command requires an app name as first argument.")
+		return errInvalidUsage
 	}
 
 	// Obtain the app name.

@@ -32,13 +32,18 @@ func init() {
 type CmdList struct{}
 
 func (c CmdList) Help() string {
-	return "print a list of all apps including their state."
+	return "Print a list of all apps including their state."
+}
+
+func (c CmdList) PrintUsage() {
+	fmt.Println("Usage: list")
+	fmt.Printf("\n%s\n", c.Help())
 }
 
 func (c CmdList) Run(args []string) error {
 	// Check if any arguments are passed.
 	if len(args) > 0 {
-		return fmt.Errorf("no arguments expected!")
+		return errInvalidUsage
 	}
 
 	// Send the list request to the daemon.
