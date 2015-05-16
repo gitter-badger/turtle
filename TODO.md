@@ -1,5 +1,6 @@
 ## Daemon
 
+* remove the containers slice from the log option and create another extra request.
 * command option
 * Implement automatic backup with encrypted compressed export.
 * Add exclude automatic backup option

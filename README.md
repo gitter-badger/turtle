@@ -1,5 +1,7 @@
 # Turtle - Rock Solid Cluster Management
 
+***This application is under development. It is stable to use. Detailed documentation will follow***
+
 Turtle is a docker and cluster management tool. It manages Turtle Apps which can be deployed within seconds. It offers an unique and powerful backup system, based on BTRFS snapshots.
 
 ## Requirements
