@@ -369,7 +369,11 @@ func Build(imageName, tag, dir string) error {
 		// Remove it if present.
 		_, err := Client.InspectImage(buildImage)
 		if err == nil {
-			err = Client.RemoveImage(buildImage)
+			opts := docker.RemoveImageOptions{
+				Force: true,
+			}
+
+			err = Client.RemoveImageExtended(buildImage, opts)
 			if err != nil {
 				return fmt.Errorf("failed to remove previous build image '%s': %v", buildImage, err)
 			}
@@ -416,7 +420,11 @@ func Build(imageName, tag, dir string) error {
 	oldImage := imageName + ":" + imageOldTag
 	_, err = Client.InspectImage(oldImage)
 	if err == nil {
-		err = Client.RemoveImage(oldImage)
+		opts := docker.RemoveImageOptions{
+			Force: true,
+		}
+
+		err = Client.RemoveImageExtended(oldImage, opts)
 		if err != nil {
 			return fmt.Errorf("failed to remove old image '%s': %v", oldImage, err)
 		}

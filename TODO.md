@@ -1,5 +1,6 @@
 ## Daemon
 
+* Error is File is shown when turtle file does not exists on first clone.
 * check previous active docker containers before trying to remove them.
 * remove the containers slice from the log option and create another extra request.
 * command option
