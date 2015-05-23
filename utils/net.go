@@ -83,7 +83,16 @@ func GetHostFromUrl(url string) string {
 		url = strings.TrimPrefix(url, "git@")
 	}
 
-	if pos := strings.Index(url, "/"); pos >= 0 {
+	// Remove everything after the first slash.
+	pos := strings.Index(url, "/")
+	if pos >= 0 {
+		url = url[:pos]
+	}
+
+	// Remove everything after the ':'.
+	// This is important for git urls.
+	pos = strings.Index(url, ":")
+	if pos >= 0 {
 		url = url[:pos]
 	}
 

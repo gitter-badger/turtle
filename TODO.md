@@ -1,5 +1,6 @@
 ## Daemon
 
+* check previous active docker containers before trying to remove them.
 * remove the containers slice from the log option and create another extra request.
 * command option
 * Implement automatic backup with encrypted compressed export.
